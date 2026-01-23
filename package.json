@@ -1,0 +1,28 @@
+{
+  "name": "fullbackend",
+  "version": "1.0.0",
+  "description": "Vu Hieu fullstack backend",
+  "keywords": [
+    "nodejs",
+    "react"
+  ],
+  "homepage": "https://github.com/VuHieu-DC315/udemy-fullstack-backend#readme",
+  "bugs": {
+    "url": "https://github.com/VuHieu-DC315/udemy-fullstack-backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VuHieu-DC315/udemy-fullstack-backend.git"
+  },
+  "license": "ISC",
+  "author": "VuHieu",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "5.2.1"
+  }
+}
