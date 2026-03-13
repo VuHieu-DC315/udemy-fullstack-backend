@@ -102,6 +102,19 @@ module.exports = {
       });
   },
 
+  getAllOrders: async (req, res) => {
+  try {
+    const orders = await Order.findAll();
+
+    return res.render("order.ejs", {
+      orders: orders
+    });
+  } catch (error) {
+    console.log("getAllOrders error =", error);
+    return res.status(500).send("Lỗi khi lấy danh sách orders");
+  }
+},
+
   // Update a Tutorial by the id in the request
   update: (req, res) => {
     const id = req.params.id;
