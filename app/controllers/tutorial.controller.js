@@ -22,6 +22,7 @@ module.exports = {
     const tutorial = {
       title: req.body.title,
       description: req.body.description,
+      price: req.body.price,
       published: req.body.published ? req.body.published : false
     };
 
@@ -55,14 +56,21 @@ module.exports = {
   buyTutorial: async (req, res) => {
   try {
     console.log("req.body =", req.body);
-    console.log("Order =", Order);
 
-    const { tutorialId, title, quantity } = req.body;
+    const { tutorialId, title, quantity, email, phone } = req.body;
+
+    if (!email || !phone) {
+      return res.status(400).json({
+        message: "Vui lòng nhập email và số điện thoại"
+      });
+    }
 
     const order = await Order.create({
       tutorialId,
       title,
-      quantity
+      quantity,
+      email,
+      phone
     });
 
     return res.json({
@@ -103,17 +111,17 @@ module.exports = {
   },
 
   getAllOrders: async (req, res) => {
-  try {
-    const orders = await Order.findAll();
+    try {
+      const orders = await Order.findAll();
 
-    return res.render("order.ejs", {
-      orders: orders
-    });
-  } catch (error) {
-    console.log("getAllOrders error =", error);
-    return res.status(500).send("Lỗi khi lấy danh sách orders");
-  }
-},
+      return res.render("order.ejs", {
+        orders: orders
+      });
+    } catch (error) {
+      console.log("getAllOrders error =", error);
+      return res.status(500).send("Lỗi khi lấy danh sách orders");
+    }
+  },
 
   // Update a Tutorial by the id in the request
   update: (req, res) => {

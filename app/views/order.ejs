@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +17,8 @@
             width: 100%;
         }
 
-        th, td {
+        th,
+        td {
             border-bottom: 1px solid #ddd;
             text-align: left;
             padding: 10px;
@@ -37,6 +39,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="top-links">
         <a href="/admin">Về trang admin</a>
@@ -52,16 +55,33 @@
             <th>Tutorial ID</th>
             <th>Title</th>
             <th>Quantity</th>
+            <th>Email</th>
+            <th>Phone</th>
         </tr>
 
         <% orders.forEach(function(item) { %>
             <tr>
-                <td><%= item.id %></td>
-                <td><%= item.tutorialId %></td>
-                <td><%= item.title %></td>
-                <td><%= item.quantity %></td>
+                <td>
+                    <%= item.id %>
+                </td>
+                <td>
+                    <%= item.tutorialId %>
+                </td>
+                <td>
+                    <%= item.title %>
+                </td>
+                <td>
+                    <%= item.quantity %>
+                </td>
+                <td>
+                    <%= item.email %>
+                </td>
+                <td>
+                    <%= item.phone %>
+                </td>
             </tr>
-        <% }) %>
+            <% }) %>
     </table>
 </body>
+
 </html>

@@ -29,8 +29,24 @@ app.use(
 
 const db = require("./models");
 const User = db.users;
+const Op = db.Sequelize.Op;
+const cartRouter = require("./routes/cart.router");
 
-db.sequelize.sync()
+const renderView = (res, viewName, data = {}) => {
+  return res.render(viewName, data, (err, html) => {
+    if (err) {
+      const fallbackPath = path.join(__dirname, viewName);
+      return res.render(fallbackPath, data);
+    }
+    return res.send(html);
+  });
+};
+
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+};
+
+db.sequelize.sync({ alter: true })
   .then(() => {
     console.log("Synced database.");
   })
@@ -39,11 +55,14 @@ db.sequelize.sync()
   });
 
 app.get("/", (req, res) => {
-  res.render("home.ejs");
+  renderView(res, "home.ejs");
 });
 
 app.get("/login", (req, res) => {
-  res.render("login.ejs");
+  renderView(res, "login.ejs", {
+    error: req.query.error || "",
+    success: req.query.success || ""
+  });
 });
 
 app.post("/login", async (req, res) => {
@@ -58,7 +77,10 @@ app.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.send("Sai tài khoản hoặc mật khẩu");
+      return renderView(res, "login.ejs", {
+        error: "Sai tài khoản hoặc mật khẩu",
+        success: ""
+      });
     }
 
     req.session.user = {
@@ -79,12 +101,87 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.get("/register", (req, res) => {
+  renderView(res, "register.ejs", {
+    error: ""
+  });
+});
+
+app.post("/register", async (req, res) => {
+  try {
+    const { tk, email, mk, confirmMk } = req.body;
+
+    if (!tk || !email || !mk || !confirmMk) {
+      return renderView(res, "register.ejs", {
+        error: "Vui lòng nhập đầy đủ thông tin"
+      });
+    }
+
+    if (tk.trim().length < 3) {
+      return renderView(res, "register.ejs", {
+        error: "Tài khoản phải có ít nhất 3 ký tự"
+      });
+    }
+
+    if (!isValidEmail(email)) {
+      return renderView(res, "register.ejs", {
+        error: "Email không đúng định dạng"
+      });
+    }
+
+    if (mk.length < 6) {
+      return renderView(res, "register.ejs", {
+        error: "Mật khẩu phải có ít nhất 6 ký tự"
+      });
+    }
+
+    if (mk !== confirmMk) {
+      return renderView(res, "register.ejs", {
+        error: "Mật khẩu nhập lại không khớp"
+      });
+    }
+
+    const existedUser = await User.findOne({
+      where: {
+        [Op.or]: [
+          { tk: tk.trim() },
+          { email: email.trim() }
+        ]
+      }
+    });
+
+    if (existedUser) {
+      if (existedUser.tk === tk.trim()) {
+        return renderView(res, "register.ejs", {
+          error: "Tài khoản đã tồn tại"
+        });
+      }
+
+      return renderView(res, "register.ejs", {
+        error: "Email đã được sử dụng"
+      });
+    }
+
+    await User.create({
+      tk: tk.trim(),
+      email: email.trim(),
+      mk: mk,
+      role: "user"
+    });
+
+    return res.redirect("/login?success=" + encodeURIComponent("Đăng ký thành công, hãy đăng nhập"));
+  } catch (error) {
+    console.log("Register error:", error);
+    return res.status(500).send("Lỗi server khi đăng ký");
+  }
+});
+
 app.get("/admin", (req, res) => {
   if (!req.session.user || req.session.user.role !== "admin") {
     return res.status(403).send("Bạn không có quyền vào trang admin");
   }
 
-  return res.render("admin.ejs");
+  return renderView(res, "admin.ejs");
 });
 
 app.get("/logout", (req, res) => {
@@ -95,6 +192,7 @@ app.get("/logout", (req, res) => {
 
 require("./routes/tutorial.routes")(app);
 require("./routes/tutorial.api")(app);
+app.use("/cart", cartRouter);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
