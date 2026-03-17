@@ -192,6 +192,7 @@ app.get("/logout", (req, res) => {
 
 require("./routes/tutorial.routes")(app);
 require("./routes/tutorial.api")(app);
+require("./routes/user.routes")(app);
 app.use("/cart", cartRouter);
 
 const PORT = process.env.PORT || 8080;
