@@ -1,102 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .box {
-      background: #fff;
-      width: 420px;
-      padding: 24px;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-    h2 {
-      margin-top: 0;
-      text-align: center;
-    }
-    .message {
-      padding: 10px 12px;
-      border-radius: 8px;
-      margin-bottom: 16px;
-      font-size: 14px;
-    }
-    .error {
-      background: #fde8e8;
-      color: #b42318;
-    }
-    label {
-      display: block;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-    input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 14px;
-      border: 1px solid #d0d5dd;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 15px;
-      background: #16a34a;
-      color: white;
-    }
-    .back-link {
-      display: block;
-      text-align: center;
-      margin-top: 14px;
-      color: #475467;
-      text-decoration: none;
-      font-size: 14px;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Đăng ký tài khoản</title>
+
+  <link rel="icon" type="image/jpeg" href="/image/Shop_logo.jpg" />
+  <link rel="stylesheet" href="/css/register.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 </head>
+
 <body>
-  <div class="box">
-    <h2>Đăng ký tài khoản</h2>
+  <main class="page">
+    <section class="auth-layout">
+      <div class="promo-panel">
+        <div class="brand-row">
+          <a href="/" class="brand-logo" aria-label="Trang chủ">
+            <img src="/image/Shop_logo.jpg" alt="Shop Logo" class="brand-logo-img" />
+            <div>
+              <div class="brand-main">PShop</div>
+              <div class="brand-sub">Thế giới mua sắm đồ công nghệ</div>
+            </div>
+          </a>
+        </div>
 
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="message error"><%= error %></div>
-    <% } %>
+        <h2 class="promo-title">
+          Đăng ký tài khoản nhận Voucher <span>Bạn Mới</span>
+        </h2>
 
-    <form method="POST" action="/register">
-      <div>
-        <label>Tài khoản:</label>
-        <input type="text" name="tk" placeholder="Nhập tài khoản" required>
-      </div>
-      <div>
-        <label>Email:</label>
-        <input type="email" name="email" placeholder="Nhập email" required>
-      </div>
-      <div>
-        <label>Mật khẩu:</label>
-        <input type="password" name="mk" placeholder="Nhập mật khẩu" required>
-      </div>
-      <div>
-        <label>Nhập lại mật khẩu:</label>
-        <input type="password" name="confirmMk" placeholder="Nhập lại mật khẩu" required>
-      </div>
-      <button type="submit">Tạo tài khoản</button>
-    </form>
+        <p class="promo-desc">
+          Tạo tài khoản để nhận ưu đãi, theo dõi đơn hàng nhanh hơn và mua sắm thuận tiện hơn trên hệ thống của bạn.
+        </p>
 
-    <a class="back-link" href="/login">Đã có tài khoản? Đăng nhập</a>
-  </div>
+        <div class="benefit-card">
+          <ul class="benefit-list">
+            <li>
+              <span class="benefit-icon">%</span>
+              <span><strong>Ưu đãi thành viên</strong> cho các sản phẩm công nghệ nổi bật mỗi tháng.</span>
+            </li>
+            <li>
+              <span class="benefit-icon">✓</span>
+              <span><strong>Theo dõi đơn hàng</strong> và lịch sử mua sắm dễ dàng ngay sau khi đăng nhập.</span>
+            </li>
+            <li>
+              <span class="benefit-icon">🎁</span>
+              <span><strong>Nhận voucher</strong> vào các dịp đặc biệt và chương trình khuyến mãi.</span>
+            </li>
+            <li>
+              <span class="benefit-icon">⚡</span>
+              <span><strong>Thanh toán nhanh hơn</strong> với thông tin tài khoản đã được lưu sẵn.</span>
+            </li>
+          </ul>
+
+          <div class="promo-footer">
+            <a href="/" class="promo-link">Xem thêm sản phẩm nổi bật →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-panel">
+        <div class="form-wrap">
+          <div class="form-header">
+            <h1>Đăng ký tài khoản</h1>
+            <p>Nhập thông tin của bạn để bắt đầu mua sắm</p>
+          </div>
+
+          <% if (typeof error !== 'undefined' && error) { %>
+            <div class="message error"><%= error %></div>
+          <% } %>
+
+          <form method="POST" action="/register">
+            <div class="form-group">
+              <label for="tk">Tài khoản</label>
+              <div class="input-wrap">
+                <input id="tk" type="text" name="tk" placeholder="Nhập tài khoản của bạn" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <div class="input-wrap">
+                <input id="email" type="email" name="email" placeholder="Nhập email của bạn" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="mk">Mật khẩu</label>
+              <div class="input-wrap">
+                <input id="mk" type="password" name="mk" placeholder="Nhập mật khẩu của bạn" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="confirmMk">Nhập lại mật khẩu</label>
+              <div class="input-wrap">
+                <input id="confirmMk" type="password" name="confirmMk" placeholder="Nhập lại mật khẩu" required />
+              </div>
+            </div>
+
+            <button class="submit-btn" type="submit">Tạo tài khoản</button>
+          </form>
+
+          <div class="extra-links">
+            <div>Bạn đã có tài khoản? <a href="/login">Đăng nhập ngay</a></div>
+          </div>
+
+          <div class="divider">hoặc</div>
+
+          <a class="home-link" href="/">Quay về trang chủ</a>
+        </div>
+      </div>
+    </section>
+  </main>
 </body>
 </html>

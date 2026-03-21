@@ -1,173 +1,220 @@
-<html lang="en">
-
+<!DOCTYPE html>
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quản lý Kho Sản phẩm</title>
+
+    <link rel="icon" type="image/jpeg" href="/image/Shop_logo.jpg" />
+    <link rel="stylesheet" href="/css/tutorial.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 </head>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-
-<style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th,
-    td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    tr:hover {
-        background-color: #ccc;
-    }
-
-    body {
-        padding: 10px;
-    }
-</style>
-
-<script>
-    $(document).ready(function () {
-        $(".btnDelete").click(function () {
-            const id = $(this).attr('data-id');
-            if (confirm(`Are you sure to delete this tutorial, id = ${id}`)) {
-                $.ajax({
-                    url: `${window.location.origin}/api/tutorials/${id}`,
-                    method: "DELETE",
-                    success: (result) => {
-                        console.log(result);
-                        $(this).closest("tr").remove();
-                    },
-                    error: function (error) {
-                        console.log(">>> ajax error: ", error)
-                    }
-                });
-            } else {
-                // Do nothing!
-            }
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function () {
-        $(".btnUpdate").click(function () {
-            const id = $(this).attr("data-id");
-            const row = $(this).closest("tr");
-
-            const title = row.find(".tdTitle").text().trim();
-            const description = row.find(".tdDescription").text().trim();
-            const published = row.find(".tdPublished").text().trim() === "true";
-
-            $("#updateId").val(id);
-            $("#updateTitle").val(title);
-            $("#updateDescription").val(description);
-            $("#updatePublished").prop("checked", published);
-
-            $("#updateForm").show();
-        });
-
-        $("#saveUpdate").click(function () {
-            const id = $("#updateId").val();
-
-            const newData = {
-                title: $("#updateTitle").val(),
-                description: $("#updateDescription").val(),
-                published: $("#updatePublished").is(":checked")
-            };
-
-            $.ajax({
-                url: `${window.location.origin}/api/tutorials/${id}`,
-                method: "PUT",
-                contentType: "application/json",
-                data: JSON.stringify(newData),
-                success: function (result) {
-                    console.log("Update success:", result);
-                    alert("Update thành công");
-                    location.reload();
-                },
-                error: function (error) {
-                    console.log(">>> ajax error:", error);
-                    alert("Update lỗi");
-                }
-            });
-        });
-
-        $("#cancelUpdate").click(function () {
-            $("#updateForm").hide();
-        });
-    });
-</script>
 
 <body>
-    <div>
-        <a href="/tutorials/create">Create new Tutorial</a>
-    </div>
-    <div>
-        <h3>List tutorials</h3>
-        <table>
-            <tr>
-                <th>id</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Published</th>
-                <th>Action</th>
-            </tr>
-            <% tutorials.forEach(function(item) { %>
-                <tr>
-                    <td> <img src="/image/<%= item.id %>.jpg" alt="tutorial image" width="80"> </td>
-                    <td>
-                        <%= item.id %>
-                    </td>
-                    <td class="tdTitle">
-                        <%= item.title %>
-                    </td>
-                    <td class="tdDescription">
-                        <%= item.description %>
-                    </td>
-                    <td class="tdPublished">
-                        <%= item.published %>
-                    </td>
-                    <td>
-                        <button class="btnUpdate" data-id="<%=item.id%>">Update</button>
-                        <button class="btnDelete" data-id="<%=item.id%>">Delete</button>
-                    </td>
-                </tr>
-                <% }); %>
+    <header class="topbar">
+        <div class="topbar-container">
+            <a href="/" class="brand-logo" aria-label="Trang chủ">
+                <img src="/image/Shop_logo.jpg" alt="Shop Logo" class="brand-logo-img" />
+                <div class="brand-logo-text">
+                    <span class="brand-main">PShop</span>
+                    <span class="brand-sub">Thế giới mua sắm đồ điện tử</span>
+                </div>
+            </a>
 
-
-        </table>
-        <div id="updateForm" style="display:none; margin-top:20px; border:1px solid #ccc; padding:15px;">
-            <h3>Update tutorial</h3>
-
-            <input type="hidden" id="updateId">
-
-            <div style="margin-bottom:10px;">
-                <label>Title:</label><br>
-                <input type="text" id="updateTitle" style="width:300px;">
+            <div class="topbar-actions">
+                <a href="/" class="topbar-link">Xem cửa hàng</a>
+                <a href="/tutorials/create" class="topbar-btn">Nhập sản phẩm mới</a>
             </div>
-
-            <div style="margin-bottom:10px;">
-                <label>Description:</label><br>
-                <input type="text" id="updateDescription" style="width:300px;">
-            </div>
-
-            <div style="margin-bottom:10px;">
-                <label>
-                    <input type="checkbox" id="updatePublished">
-                    Published
-                </label>
-            </div>
-
-            <button id="saveUpdate">Save</button>
-            <button id="cancelUpdate">Cancel</button>
         </div>
-    </div>
-</body>
+    </header>
 
+    <main class="page">
+        <section class="hero">
+            <div class="hero-left">
+                <p class="hero-tag">BẢNG ĐIỀU KHIỂN</p>
+                <h1>Kho sản phẩm công nghệ</h1>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span class="stat-label">Tổng Sản Phẩm</span>
+                    <strong class="stat-value"><%= tutorials.length %> mã</strong>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Trạng thái kho</span>
+                    <strong class="stat-value">Đang hoạt động</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-card">
+            <div class="card-head">
+                <div>
+                    <h2>Danh mục sản phẩm</h2>
+                    <p>Quản lý thông tin, giá bán và trạng thái kinh doanh của thiết bị</p>
+                </div>
+
+                <a href="/tutorials/create" class="create-btn">+ Thêm sản phẩm</a>
+            </div>
+
+            <div class="table-wrap">
+                <table class="tutorial-table">
+                    <thead>
+                        <tr>
+                            <th>Ảnh thiết bị</th>
+                            <th>ID sản phẩm</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Thông số kỹ thuật</th>
+                            <th>Trạng thái hàng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% tutorials.forEach(function(item) { %>
+                            <tr>
+                                <td>
+                                    <div class="thumb-box">
+                                        <img src="/image/<%= item.id %>.jpg" alt="Sản phẩm" class="thumb-img" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="id-badge"><%= item.id %></span>
+                                </td>
+                                <td class="tdTitle title-cell"><strong><%= item.title %></strong></td>
+                                <td class="tdDescription desc-cell"><%= item.description %></td>
+                                <td class="tdPublished">
+                                    <% if (item.published) { %>
+                                        <span class="status-badge status-active">Đang kinh doanh</span>
+                                    <% } else { %>
+                                        <span class="status-badge status-draft">Ngừng kinh doanh</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <div class="action-group">
+                                        <button class="btnUpdate btn-action btn-edit" data-id="<%= item.id %>">Sửa</button>
+                                        <button class="btnDelete btn-action btn-delete" data-id="<%= item.id %>">Xoá</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="updateForm" class="edit-card" style="display: none;">
+            <div class="card-head">
+                <div>
+                    <p class="edit-tag">CHỈNH SỬA THÔNG TIN</p>
+                    <h2>Cập nhật chi tiết sản phẩm</h2>
+                    <p>Thay đổi tên, mô tả hoặc trạng thái hiển thị trên website</p>
+                </div>
+            </div>
+
+            <input type="hidden" id="updateId" />
+
+            <div class="form-grid">
+                <div class="form-group full">
+                    <label for="updateTitle">Tên sản phẩm / Model</label>
+                    <input type="text" id="updateTitle" placeholder="Ví dụ: iPhone 15 Pro Max 256GB" />
+                </div>
+
+                <div class="form-group full">
+                    <label for="updateDescription">Mô tả cấu hình & bảo hành</label>
+                    <textarea id="updateDescription" placeholder="Nhập chi tiết thông số kỹ thuật..."></textarea>
+                </div>
+
+                <div class="form-group full">
+                    <label class="toggle-field">
+                        <input type="checkbox" id="updatePublished" />
+                        <span class="toggle-box"></span>
+                        <span class="toggle-text">Kích hoạt bán sản phẩm này trên hệ thống</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button id="saveUpdate" class="primary-btn">Cập nhật ngay</button>
+                <button id="cancelUpdate" class="secondary-btn" type="button">Bỏ qua</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        $(document).ready(function () {
+            // Xử lý Xoá sản phẩm
+            $(".btnDelete").click(function () {
+                const id = $(this).attr("data-id");
+
+                if (confirm(`Bạn có chắc muốn xoá sản phẩm mã #${id} khỏi hệ thống?`)) {
+                    $.ajax({
+                        url: `${window.location.origin}/api/tutorials/${id}`,
+                        method: "DELETE",
+                        success: () => {
+                            $(this).closest("tr").fadeOut(300, function() { $(this).remove(); });
+                        },
+                        error: function (error) {
+                            console.log("Lỗi xoá:", error);
+                            alert("Không thể kết nối máy chủ để xoá sản phẩm.");
+                        }
+                    });
+                }
+            });
+
+            // Xử lý mở Form cập nhật
+            $(".btnUpdate").click(function () {
+                const id = $(this).attr("data-id");
+                const row = $(this).closest("tr");
+
+                const title = row.find(".tdTitle").text().trim();
+                const description = row.find(".tdDescription").text().trim();
+                const published = row.find(".tdPublished").text().trim().includes("Đang kinh doanh");
+
+                $("#updateId").val(id);
+                $("#updateTitle").val(title);
+                $("#updateDescription").val(description);
+                $("#updatePublished").prop("checked", published);
+
+                $("#updateForm").fadeIn(180);
+                $("html, body").animate({
+                    scrollTop: $("#updateForm").offset().top - 90
+                }, 320);
+            });
+
+            // Lưu thay đổi
+            $("#saveUpdate").click(function () {
+                const id = $("#updateId").val();
+
+                const newData = {
+                    title: $("#updateTitle").val(),
+                    description: $("#updateDescription").val(),
+                    published: $("#updatePublished").is(":checked")
+                };
+
+                $.ajax({
+                    url: `${window.location.origin}/api/tutorials/${id}`,
+                    method: "PUT",
+                    contentType: "application/json",
+                    data: JSON.stringify(newData),
+                    success: function () {
+                        alert("Thông tin sản phẩm đã được cập nhật!");
+                        location.reload();
+                    },
+                    error: function (error) {
+                        console.log("Lỗi cập nhật:", error);
+                        alert("Lỗi: Không thể lưu thông tin sản phẩm.");
+                    }
+                });
+            });
+
+            $("#cancelUpdate").click(function () {
+                $("#updateForm").fadeOut(150);
+            });
+        });
+    </script>
+</body>
 </html>
