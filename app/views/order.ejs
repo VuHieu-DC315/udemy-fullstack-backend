@@ -67,6 +67,7 @@
                                 <th>Số lượng</th>
                                 <th>Email khách</th>
                                 <th>Số điện thoại</th>
+                                    <th>Giá</th>
                             </tr>
                         </thead>
 
@@ -100,6 +101,9 @@
                                             <%= item.phone %>
                                         </a>
                                     </td>
+                                        <td>
+                                            <span class="price-badge"><%= item.price ? item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '-' %></span>
+                                        </td>
                                 </tr>
                             <% }) %>
                         </tbody>

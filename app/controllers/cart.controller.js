@@ -10,7 +10,7 @@ module.exports = {
       const tutorialId = req.body.tutorialId;
 
       let cart = await Cart.findOne({
-        where: { userId }
+        where: { userId },
       });
 
       if (!cart) {
@@ -20,8 +20,8 @@ module.exports = {
       let item = await CartItem.findOne({
         where: {
           cartId: cart.id,
-          tutorialId: tutorialId
-        }
+          tutorialId: tutorialId,
+        },
       });
 
       if (item) {
@@ -31,7 +31,7 @@ module.exports = {
         await CartItem.create({
           cartId: cart.id,
           tutorialId: tutorialId,
-          quantity: 1
+          quantity: 1,
         });
       }
 
@@ -51,28 +51,28 @@ module.exports = {
         include: [
           {
             model: CartItem,
-            include: [Tutorial]
-          }
-        ]
+            include: [Tutorial],
+          },
+        ],
       });
 
       if (!cart) {
         return res.render("cart.ejs", {
           cartItems: [],
-          total: 0
+          total: 0,
         });
       }
 
       const cartItems = cart.cart_items || cart.cartItems || [];
       let total = 0;
 
-      cartItems.forEach(item => {
+      cartItems.forEach((item) => {
         total += item.quantity * item.tutorial.price;
       });
 
       return res.render("cart.ejs", {
         cartItems,
-        total
+        total,
       });
     } catch (error) {
       console.log(error);
@@ -122,67 +122,66 @@ module.exports = {
     }
   },
 
-checkoutCart: async (req, res) => {
-  try {
-    const userId = req.session.user.id;
-    const { email, phone } = req.body;
+  checkoutCart: async (req, res) => {
+    try {
+      const userId = req.session.user.id;
+      const { email, phone } = req.body;
 
-    if (!email || !phone) {
-      return res.status(400).json({
-        message: "Vui lòng nhập email và số điện thoại"
-      });
-    }
-
-    let cart = await Cart.findOne({
-      where: { userId },
-      include: [
-        {
-          model: CartItem,
-          include: [Tutorial]
-        }
-      ]
-    });
-
-    if (!cart) {
-      return res.status(400).json({
-        message: "Giỏ hàng trống"
-      });
-    }
-
-    const cartItems = cart.cart_items || cart.cartItems || [];
-
-    if (cartItems.length === 0) {
-      return res.status(400).json({
-        message: "Giỏ hàng trống"
-      });
-    }
-
-    for (const item of cartItems) {
-      await db.orders.create({
-        tutorialId: item.tutorial.id,
-        title: item.tutorial.title,
-        quantity: item.quantity,
-        email,
-        phone
-      });
-    }
-
-    await CartItem.destroy({
-      where: {
-        cartId: cart.id
+      if (!email || !phone) {
+        return res.status(400).json({
+          message: "Vui lòng nhập email và số điện thoại",
+        });
       }
-    });
 
-    return res.json({
-      message: "Thanh toán thành công"
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      message: "Lỗi thanh toán giỏ hàng"
-    });
-  }
-}
+      let cart = await Cart.findOne({
+        where: { userId },
+        include: [
+          {
+            model: CartItem,
+            include: [Tutorial],
+          },
+        ],
+      });
 
+      if (!cart) {
+        return res.status(400).json({
+          message: "Giỏ hàng trống",
+        });
+      }
+
+      const cartItems = cart.cart_items || cart.cartItems || [];
+
+      if (cartItems.length === 0) {
+        return res.status(400).json({
+          message: "Giỏ hàng trống",
+        });
+      }
+
+      for (const item of cartItems) {
+        await db.orders.create({
+          tutorialId: item.tutorial.id,
+          title: item.tutorial.title,
+          quantity: item.quantity,
+          email,
+          phone,
+          price: item.tutorial.price, // Lưu giá tại thời điểm đặt hàng
+        });
+      }
+
+      await CartItem.destroy({
+        where: {
+          cartId: cart.id,
+        },
+      });
+
+      return res.json({
+        message: "Thanh toán thành công",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message: "Lỗi thanh toán giỏ hàng",
+      });
+    }
+  },
 };
-
