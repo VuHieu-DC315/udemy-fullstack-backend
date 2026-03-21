@@ -22,9 +22,9 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      maxAge: 24 * 60 * 60 * 1000
-    }
-  })
+      maxAge: 24 * 60 * 60 * 1000,
+    },
+  }),
 );
 
 const db = require("./models");
@@ -47,7 +47,8 @@ const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-db.sequelize.sync({ alter: true })
+db.sequelize
+  .sync({ alter: true })
   .then(() => {
     console.log("Synced database.");
   })
@@ -62,7 +63,7 @@ app.get("/", (req, res) => {
 app.get("/login", (req, res) => {
   renderView(res, "login.ejs", {
     error: req.query.error || "",
-    success: req.query.success || ""
+    success: req.query.success || "",
   });
 });
 
@@ -73,14 +74,14 @@ app.post("/login", async (req, res) => {
     const user = await User.findOne({
       where: {
         tk: tk,
-        mk: mk
-      }
+        mk: mk,
+      },
     });
 
     if (!user) {
       return renderView(res, "login.ejs", {
         error: "Sai tài khoản hoặc mật khẩu",
-        success: ""
+        success: "",
       });
     }
 
@@ -88,7 +89,7 @@ app.post("/login", async (req, res) => {
       id: user.id,
       tk: user.tk,
       email: user.email,
-      role: user.role
+      role: user.role,
     };
 
     if (user.role === "admin") {
@@ -104,7 +105,7 @@ app.post("/login", async (req, res) => {
 
 app.get("/register", (req, res) => {
   renderView(res, "register.ejs", {
-    error: ""
+    error: "",
   });
 });
 
@@ -114,52 +115,49 @@ app.post("/register", async (req, res) => {
 
     if (!tk || !email || !mk || !confirmMk) {
       return renderView(res, "register.ejs", {
-        error: "Vui lòng nhập đầy đủ thông tin"
+        error: "Vui lòng nhập đầy đủ thông tin",
       });
     }
 
     if (tk.trim().length < 3) {
       return renderView(res, "register.ejs", {
-        error: "Tài khoản phải có ít nhất 3 ký tự"
+        error: "Tài khoản phải có ít nhất 3 ký tự",
       });
     }
 
     if (!isValidEmail(email)) {
       return renderView(res, "register.ejs", {
-        error: "Email không đúng định dạng"
+        error: "Email không đúng định dạng",
       });
     }
 
     if (mk.length < 6) {
       return renderView(res, "register.ejs", {
-        error: "Mật khẩu phải có ít nhất 6 ký tự"
+        error: "Mật khẩu phải có ít nhất 6 ký tự",
       });
     }
 
     if (mk !== confirmMk) {
       return renderView(res, "register.ejs", {
-        error: "Mật khẩu nhập lại không khớp"
+        error: "Mật khẩu nhập lại không khớp",
       });
     }
 
     const existedUser = await User.findOne({
       where: {
-        [Op.or]: [
-          { tk: tk.trim() },
-          { email: email.trim() }
-        ]
-      }
+        [Op.or]: [{ tk: tk.trim() }, { email: email.trim() }],
+      },
     });
 
     if (existedUser) {
       if (existedUser.tk === tk.trim()) {
         return renderView(res, "register.ejs", {
-          error: "Tài khoản đã tồn tại"
+          error: "Tài khoản đã tồn tại",
         });
       }
 
       return renderView(res, "register.ejs", {
-        error: "Email đã được sử dụng"
+        error: "Email đã được sử dụng",
       });
     }
 
@@ -167,10 +165,13 @@ app.post("/register", async (req, res) => {
       tk: tk.trim(),
       email: email.trim(),
       mk: mk,
-      role: "user"
+      role: "user",
     });
 
-    return res.redirect("/login?success=" + encodeURIComponent("Đăng ký thành công, hãy đăng nhập"));
+    return res.redirect(
+      "/login?success=" +
+        encodeURIComponent("Đăng ký thành công, hãy đăng nhập"),
+    );
   } catch (error) {
     console.log("Register error:", error);
     return res.status(500).send("Lỗi server khi đăng ký");
