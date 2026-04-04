@@ -10,22 +10,14 @@ module.exports = {
     return res.render("tutorial.ejs", { tutorials });
   },
 
-  create: async (req, res) => {
-    const tutorial = {
-      title: req.body.title,
-      description: req.body.description,
-      price: req.body.price,
-      published: req.body.published ? req.body.published : false
-    };
-
-    await Tutorial.create(tutorial);
-    return res.redirect("/admin/products");
-  },
-
-  getHomesalePage: async (req, res) => {
+  getLandingPage: async (req, res) => {
     try {
-      const tutorials = await Tutorial.findAll();
       const now = new Date();
+
+      const tutorials = await Tutorial.findAll({
+        order: [["id", "DESC"]],
+        limit: 6,
+      });
 
       let announcements = await Announcement.findAll({
         where: {
@@ -36,20 +28,110 @@ module.exports = {
                 {
                   [Op.or]: [
                     { startDate: null },
-                    { startDate: { [Op.lte]: now } }
-                  ]
+                    { startDate: { [Op.lte]: now } },
+                  ],
                 },
                 {
-                  [Op.or]: [
-                    { endDate: null },
-                    { endDate: { [Op.gte]: now } }
-                  ]
-                }
-              ]
-            }
-          ]
+                  [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: now } }],
+                },
+              ],
+            },
+          ],
         },
-        order: [["createdAt", "DESC"]]
+        order: [["createdAt", "DESC"]],
+      });
+
+      const uniqueAnnouncements = [];
+      const seenIds = new Set();
+
+      for (const item of announcements) {
+        if (!seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          uniqueAnnouncements.push(item);
+        }
+      }
+
+      const formatVN = (date) => {
+        if (!date) return "";
+        return new Intl.DateTimeFormat("vi-VN", {
+          timeZone: "Asia/Ho_Chi_Minh",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        }).format(new Date(date));
+      };
+
+      const formattedAnnouncements = uniqueAnnouncements.map((item) => ({
+        ...item.toJSON(),
+        startDateVN: item.startDate ? formatVN(item.startDate) : null,
+        endDateVN: item.endDate ? formatVN(item.endDate) : null,
+      }));
+
+      return res.render("home.ejs", {
+        tutorials,
+        announcements: formattedAnnouncements.slice(0, 3),
+        hasMoreAnnouncements: formattedAnnouncements.length > 3,
+        user: req.session.user,
+      });
+    } catch (error) {
+      console.log("getLandingPage error =", error);
+      return res.status(500).send("Lỗi tải trang chủ");
+    }
+  },
+
+  create: async (req, res) => {
+    const tutorial = {
+      title: req.body.title,
+      description: req.body.description,
+      price: req.body.price,
+      published: req.body.published ? req.body.published : false,
+    };
+
+    await Tutorial.create(tutorial);
+    return res.redirect("/admin/products");
+  },
+
+  getHomesalePage: async (req, res) => {
+    try {
+      const q = (req.query.q || "").trim();
+      const now = new Date();
+
+      const tutorialWhere = q
+        ? {
+            [Op.or]: [
+              { title: { [Op.like]: `%${q}%` } },
+              { description: { [Op.like]: `%${q}%` } },
+            ],
+          }
+        : {};
+
+      const tutorials = await Tutorial.findAll({
+        where: tutorialWhere,
+      });
+
+      let announcements = await Announcement.findAll({
+        where: {
+          [Op.or]: [
+            { isPermanent: true },
+            {
+              [Op.and]: [
+                {
+                  [Op.or]: [
+                    { startDate: null },
+                    { startDate: { [Op.lte]: now } },
+                  ],
+                },
+                {
+                  [Op.or]: [{ endDate: null }, { endDate: { [Op.gte]: now } }],
+                },
+              ],
+            },
+          ],
+        },
+        order: [["createdAt", "DESC"]],
       });
 
       // chống trùng theo id
@@ -73,21 +155,22 @@ module.exports = {
           day: "2-digit",
           hour: "2-digit",
           minute: "2-digit",
-          second: "2-digit"
+          second: "2-digit",
         }).format(new Date(date));
       };
 
-      const formattedAnnouncements = uniqueAnnouncements.map(item => ({
+      const formattedAnnouncements = uniqueAnnouncements.map((item) => ({
         ...item.toJSON(),
         startDateVN: item.startDate ? formatVN(item.startDate) : null,
-        endDateVN: item.endDate ? formatVN(item.endDate) : null
+        endDateVN: item.endDate ? formatVN(item.endDate) : null,
       }));
 
       return res.render("homepage.ejs", {
         tutorials,
         announcements: formattedAnnouncements.slice(0, 3),
         hasMoreAnnouncements: formattedAnnouncements.length > 3,
-        user: req.session.user
+        user: req.session.user,
+        q: q,
       });
     } catch (error) {
       console.log("getHomesalePage error =", error);
@@ -97,6 +180,12 @@ module.exports = {
 
   getBuyPage: async (req, res) => {
     try {
+      if (!req.session.user) {
+        return res.redirect(
+          "/login?error=" + encodeURIComponent("Bạn cần đăng nhập để mua hàng"),
+        );
+      }
+
       const id = req.params.id;
       const tutorial = await Tutorial.findByPk(id);
 
@@ -112,11 +201,17 @@ module.exports = {
 
   buyTutorial: async (req, res) => {
     try {
+      if (!req.session.user) {
+        return res.status(401).json({
+          message: "Bạn cần đăng nhập để mua hàng",
+        });
+      }
+
       const { tutorialId, title, quantity, email, phone } = req.body;
 
       if (!email || !phone) {
         return res.status(400).json({
-          message: "Vui lòng nhập email và số điện thoại"
+          message: "Vui lòng nhập email và số điện thoại",
         });
       }
 
@@ -125,17 +220,17 @@ module.exports = {
         title,
         quantity,
         email,
-        phone
+        phone,
       });
 
       return res.json({
         message: "Buy success",
-        order
+        order,
       });
     } catch (error) {
       console.log("buyTutorial error =", error);
       return res.status(500).json({
-        message: "Error when buying tutorial"
+        message: "Error when buying tutorial",
       });
     }
   },
@@ -148,18 +243,18 @@ module.exports = {
     const id = req.params.id;
 
     Tutorial.findByPk(id)
-      .then(data => {
+      .then((data) => {
         if (data) {
           res.send(data);
         } else {
           res.status(404).send({
-            message: `Cannot find Tutorial with id=${id}.`
+            message: `Cannot find Tutorial with id=${id}.`,
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         res.status(500).send({
-          message: "Error retrieving Tutorial with id=" + id
+          message: "Error retrieving Tutorial with id=" + id,
         });
       });
   },
@@ -169,7 +264,7 @@ module.exports = {
       const orders = await Order.findAll();
 
       return res.render("order.ejs", {
-        orders: orders
+        orders: orders,
       });
     } catch (error) {
       console.log("getAllOrders error =", error);
@@ -181,23 +276,23 @@ module.exports = {
     const id = req.params.id;
 
     Tutorial.update(req.body, {
-      where: { id: id }
+      where: { id: id },
     })
-      .then(num => {
+      .then((num) => {
         if (num == 1) {
           res.send({
-            message: "Tutorial was updated successfully."
+            message: "Tutorial was updated successfully.",
           });
         } else {
           res.send({
-            message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
+            message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`,
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         res.status(500).send({
-          message: "Error updating Tutorial with id=" + id
+          message: "Error updating Tutorial with id=" + id,
         });
       });
-  }
+  },
 };

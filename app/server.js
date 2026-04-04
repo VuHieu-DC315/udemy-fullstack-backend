@@ -30,6 +30,9 @@ app.use(
 const db = require("./models");
 const User = db.users;
 const Op = db.Sequelize.Op;
+const Tutorial = db.tutorials;
+const Announcement = db.announcements;
+const Sequelize = db.Sequelize;
 const cartRouter = require("./routes/cart.router");
 const announcementRouter = require("./routes/announcement.router");
 
@@ -47,7 +50,6 @@ const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
-
 db.sequelize
   .sync()
   .then(() => {
@@ -58,16 +60,77 @@ db.sequelize
   });
 
 //app.get("/", (req, res) => {
- // renderView(res, "home.ejs");
+// renderView(res, "home.ejs");
 //});
 
 app.get("/", async (req, res) => {
   try {
+    const now = new Date();
+
+    const tutorials = await Tutorial.findAll({
+      order: [["id", "DESC"]],
+      limit: 6,
+    });
+
+    let announcements = await Announcement.findAll({
+      where: {
+        [Sequelize.Op.or]: [
+          { isPermanent: true },
+          {
+            [Sequelize.Op.and]: [
+              {
+                [Sequelize.Op.or]: [
+                  { startDate: null },
+                  { startDate: { [Sequelize.Op.lte]: now } },
+                ],
+              },
+              {
+                [Sequelize.Op.or]: [
+                  { endDate: null },
+                  { endDate: { [Sequelize.Op.gte]: now } },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    const uniqueAnnouncements = [];
+    const seenIds = new Set();
+
+    for (const item of announcements) {
+      if (!seenIds.has(item.id)) {
+        seenIds.add(item.id);
+        uniqueAnnouncements.push(item);
+      }
+    }
+
+    const formatVN = (date) => {
+      if (!date) return "";
+      return new Intl.DateTimeFormat("vi-VN", {
+        timeZone: "Asia/Ho_Chi_Minh",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }).format(new Date(date));
+    };
+
+    const formattedAnnouncements = uniqueAnnouncements.map((item) => ({
+      ...item.toJSON(),
+      startDateVN: item.startDate ? formatVN(item.startDate) : null,
+      endDateVN: item.endDate ? formatVN(item.endDate) : null,
+    }));
+
     renderView(res, "home", {
       user: req.session.user || null,
-      announcements: [],
-      hasMoreAnnouncements: false,
-      tutorials: [],
+      announcements: formattedAnnouncements.slice(0, 3),
+      hasMoreAnnouncements: formattedAnnouncements.length > 3,
+      tutorials: tutorials,
     });
   } catch (error) {
     console.log("Home render error:", error);

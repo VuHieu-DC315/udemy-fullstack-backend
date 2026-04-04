@@ -9,9 +9,12 @@ module.exports = {
       const userId = req.session.user.id;
       const tutorialId = req.body.tutorialId;
 
-      let cart = await Cart.findOne({
-        where: { userId },
-      });
+      const tutorial = await Tutorial.findByPk(tutorialId);
+      if (!tutorial) {
+        return res.status(404).send("Sản phẩm không tồn tại");
+      }
+
+      let cart = await Cart.findOne({ where: { userId } });
 
       if (!cart) {
         cart = await Cart.create({ userId });
@@ -51,7 +54,13 @@ module.exports = {
         include: [
           {
             model: CartItem,
-            include: [Tutorial],
+            as: "items",
+            include: [
+              {
+                model: Tutorial,
+                as: "tutorial",
+              },
+            ],
           },
         ],
       });
@@ -63,11 +72,11 @@ module.exports = {
         });
       }
 
-      const cartItems = cart.cart_items || cart.cartItems || [];
+      const cartItems = cart.items || [];
       let total = 0;
 
       cartItems.forEach((item) => {
-        total += item.quantity * item.tutorial.price;
+        total += item.quantity * (item.tutorial?.price || 0);
       });
 
       return res.render("cart.ejs", {
@@ -133,12 +142,14 @@ module.exports = {
         });
       }
 
+      // Lấy giỏ hàng của user, kèm theo các item và thông tin sản phẩm
       let cart = await Cart.findOne({
         where: { userId },
         include: [
           {
             model: CartItem,
-            include: [Tutorial],
+            as: "items",
+            include: [{ model: Tutorial, as: "tutorial" }],
           },
         ],
       });
@@ -149,7 +160,7 @@ module.exports = {
         });
       }
 
-      const cartItems = cart.cart_items || cart.cartItems || [];
+      const cartItems = cart.items || [];
 
       if (cartItems.length === 0) {
         return res.status(400).json({

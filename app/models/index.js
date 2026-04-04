@@ -10,15 +10,15 @@ const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     max: dbConfig.pool.max,
     min: dbConfig.pool.min,
     acquire: dbConfig.pool.acquire,
-    idle: dbConfig.pool.idle
+    idle: dbConfig.pool.idle,
   },
   dialectOptions: {
-    charset: "utf8mb4"
+    charset: "utf8mb4",
   },
   define: {
     charset: "utf8mb4",
-    collate: "utf8mb4_unicode_ci"
-  }
+    collate: "utf8mb4_unicode_ci",
+  },
 });
 
 const db = {};
@@ -33,13 +33,26 @@ db.announcements = require("./announcement.model.js")(sequelize, Sequelize);
 db.carts = require("./cart.model.js")(sequelize, Sequelize);
 db.cartItems = require("./cartItem.model.js")(sequelize, Sequelize);
 
+// ===== RELATIONS (FIX ALIAS) =====
 db.users.hasOne(db.carts, { foreignKey: "userId" });
 db.carts.belongsTo(db.users, { foreignKey: "userId" });
 
-db.carts.hasMany(db.cartItems, { foreignKey: "cartId" });
-db.cartItems.belongsTo(db.carts, { foreignKey: "cartId" });
+db.carts.hasMany(db.cartItems, {
+  foreignKey: "cartId",
+  as: "items",
+});
 
-db.tutorials.hasMany(db.cartItems, { foreignKey: "tutorialId" });
-db.cartItems.belongsTo(db.tutorials, { foreignKey: "tutorialId" });
+db.cartItems.belongsTo(db.carts, {
+  foreignKey: "cartId",
+});
+
+db.cartItems.belongsTo(db.tutorials, {
+  foreignKey: "tutorialId",
+  as: "tutorial",
+});
+
+db.tutorials.hasMany(db.cartItems, {
+  foreignKey: "tutorialId",
+});
 
 module.exports = db;
