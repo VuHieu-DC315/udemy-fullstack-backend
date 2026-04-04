@@ -1,161 +1,168 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Page</title>
+    <title>PShop - Homepage</title>
+    <link rel="stylesheet" href="/css/homepage.css">
 </head>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-
-<style>
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-    th,
-    td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-
-    tr:hover {
-        background-color: #ccc;
-    }
-
-    body {
-        padding: 10px;
-    }
-
-    .announcement-section {
-        margin-bottom: 25px;
-        padding: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background: #fafafa;
-    }
-
-    .announcement-item {
-        padding: 10px 0;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .announcement-item:last-child {
-        border-bottom: none;
-    }
-
-    .hidden-announcement {
-        display: none;
-    }
-
-    #btnShowMore {
-        margin-top: 10px;
-        padding: 8px 12px;
-        cursor: pointer;
-    }
-</style>
-
-<script>
-    $(document).ready(function () {
-        $(".btnBuy").click(function () {
-            const id = $(this).attr("data-id");
-            window.location.href = `${window.location.origin}/homepage/${id}`;
-        });
-
-        $("#btnShowMore").click(function () {
-            $(".hidden-announcement").slideDown();
-            $(this).hide();
-        });
-    });
-</script>
-
 <body>
-    <div style="margin-bottom: 15px;">
-        <a href="/cart">Xem giỏ hàng</a>
-        <% if (user) { %>
-            <a href="/logout">Đăng xuất</a>
-            <% } else { %>
-                <a href="/login">Đăng nhập</a>
+    
+    <div class="main-navbar">
+        <div class="main-navbar-inner">
+            <a href="/homepage" class="shop-brand">
+                <img src="/image/Shop_logo.jpg" alt="PShop Logo" class="shop-brand-logo">
+                <div class="shop-brand-text">
+                    <span class="shop-brand-name">PShop</span>
+                    <span class="shop-brand-tagline">Thế giới mua sắm đồ điện tử</span>
+                </div>
+            </a>
+
+            <form class="shop-search" onsubmit="return false;">
+                <input type="text" placeholder="Bạn muốn mua gì hôm nay?">
+                <button type="submit">Tìm</button>
+            </form>
+
+            <div class="shop-actions">
+                <a href="/cart" class="nav-cart-link">Giỏ hàng</a>
+
+                <% if (user) { %>
+                    <a href="/logout" class="nav-auth-btn">Đăng xuất</a>
+                <% } else { %>
+                    <a href="/login" class="nav-auth-btn">Đăng nhập</a>
                 <% } %>
-    </div>
-
-    <% if (announcements && announcements.length> 0) { %>
-        <% announcements.forEach(function(item) { %>
-            <div style="border:1px solid #ddd; border-radius:10px; padding:16px; margin-bottom:20px;">
-                <h2>Thông báo</h2>
-                <p><strong>
-                        <%= item.title %>
-                    </strong></p>
-                <p>
-                    <%= item.content %>
-                </p>
-
-                <% if (item.isPermanent) { %>
-                    <p>Thông báo vĩnh viễn</p>
-                    <% } else if (item.startDateVN || item.endDateVN) { %>
-                        <p>
-                            Từ:
-                            <%= item.startDateVN || "Không giới hạn" %>
-                                - Đến:
-                                <%= item.endDateVN || "Không giới hạn" %>
-                        </p>
-                        <% } %>
             </div>
-            <% }) %>
+        </div>
+    </div>
+</header>
 
-                <% if (hasMoreAnnouncements) { %>
-                    <div style="margin-bottom:20px;">
-                        <a href="/announcements">Xem thêm</a>
+    <main class="page-shell">
+        <div class="content-stack">
+
+            <% if (announcements && announcements.length > 0) { %>
+                <section class="panel">
+                    <div class="panel-inner">
+                        <div class="section-head">
+                            <div class="section-title-wrap">
+                                <span class="section-kicker">Announcements</span>
+                                <h2 class="section-title">Thông báo mới</h2>
+                                <p class="section-subtitle">Ưu đãi và cập nhật nổi bật dành cho khách hàng PShop</p>
+                            </div>
+
+                            <% if (hasMoreAnnouncements) { %>
+                                <a href="/announcements" class="section-link">Xem thêm</a>
+                            <% } %>
+                        </div>
+
+                        <div class="announcement-grid">
+                            <% announcements.forEach(function(item) { %>
+                                <article class="announcement-card">
+                                    <span class="announcement-badge">Thông báo</span>
+                                    <h3 class="announcement-title"><%= item.title %></h3>
+                                    <p class="announcement-content"><%= item.content %></p>
+
+                                    <div class="announcement-meta">
+                                        <% if (item.isPermanent) { %>
+                                            <div>Thông báo vĩnh viễn</div>
+                                        <% } else if (item.startDateVN || item.endDateVN) { %>
+                                            <div>
+                                                Từ: <%= item.startDateVN || "Không giới hạn" %><br>
+                                                Đến: <%= item.endDateVN || "Không giới hạn" %>
+                                            </div>
+                                        <% } %>
+                                    </div>
+                                </article>
+                            <% }) %>
+                        </div>
                     </div>
-                    <% } %>
-                        <% } %>
-                            <div>
-                                <h3>List tutorials</h3>
-                                <table>
+                </section>
+            <% } %>
+
+            <section class="panel product-panel">
+                <div class="panel-inner">
+                    <div class="section-head">
+                        <div class="section-title-wrap">
+                    
+                            <h2 class="section-title">Danh sách sản phẩm</h2>
+                            
+                        </div>
+                    </div>
+
+                    <% if (tutorials && tutorials.length > 0) { %>
+                        <div class="product-table-wrap">
+                            <table class="product-table">
+                                <thead>
                                     <tr>
                                         <th>Ảnh</th>
                                         <th>ID</th>
-                                        <th>Title</th>
-                                        <th>Description</th>
-                                        <th>Price</th>
-                                        <th>Published</th>
-                                        <th>Action</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Mô tả</th>
+                                        <th>Giá</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
                                     </tr>
-
+                                </thead>
+                                <tbody>
                                     <% tutorials.forEach(function(item) { %>
                                         <tr>
                                             <td>
-                                                <img src="/image/<%= item.id %>.jpg" alt="tutorial image" width="80">
+                                                <div class="product-thumb">
+                                                    <img src="/image/<%= item.id %>.jpg" alt="tutorial image">
+                                                </div>
                                             </td>
                                             <td>
-                                                <%= item.id %>
+                                                <span class="id-badge">#<%= item.id %></span>
                                             </td>
                                             <td>
-                                                <%= item.title %>
+                                                <div class="product-title"><%= item.title %></div>
                                             </td>
                                             <td>
-                                                <%= item.description %>
+                                                <div class="product-desc"><%= item.description %></div>
                                             </td>
                                             <td>
-                                                <%= item.price %>
+                                                <span class="price-text">
+                                                    <%= Number(item.price || 0).toLocaleString("vi-VN") %>đ
+                                                </span>
                                             </td>
                                             <td>
-                                                <%= item.published %>
+                                                <span class="status-badge <%= item.published ? 'active' : 'inactive' %>">
+                                                    <%= item.published ? "Đang bán" : "Ngừng bán" %>
+                                                </span>
                                             </td>
                                             <td>
-                                                <button class="btnBuy" data-id="<%= item.id %>" <%=item.published ? ""
-                                                    : "disabled" %>>
-                                                    Buy
+                                                <button
+                                                    class="btnBuy buy-btn"
+                                                    data-id="<%= item.id %>"
+                                                    <%= item.published ? "" : "disabled" %>>
+                                                    <%= item.published ? "Mua ngay" : "Ngừng bán" %>
                                                 </button>
                                             </td>
                                         </tr>
-                                        <% }) %>
-                                </table>
-                            </div>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">Hiện chưa có sản phẩm nào để hiển thị.</div>
+                    <% } %>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $(".btnBuy").click(function () {
+                const id = $(this).attr("data-id");
+                window.location.href = `${window.location.origin}/homepage/${id}`;
+            });
+        });
+    </script>
 </body>
 
 </html>

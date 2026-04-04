@@ -2,39 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sửa tài khoản</title>
+  <link rel="stylesheet" href="/css/editUser.css">
 </head>
 <body>
-  <h2>Sửa tài khoản</h2>
-
-  <form action="/admin/users/update/<%= user.id %>" method="POST">
-    <div>
-      <label>Tài khoản:</label>
-      <input type="text" name="tk" value="<%= user.tk %>" required>
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo-box">
+        <img class="logo-img" src="/image/Shop_logo.jpg" alt="logo">
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">PShop</span>
+        <span class="brand-subtitle">Thế giới mua sắm đồ điện tử</span>
+      </div>
     </div>
 
-    <div>
-      <label>Email:</label>
-      <input type="email" name="email" value="<%= user.email %>" required>
-    </div>
+    <a href="/admin/users" class="topbar-back-btn">Quay lại quản lý user</a>
+  </header>
 
-    <div>
-      <label>Mật khẩu:</label>
-      <input type="text" name="mk" value="<%= user.mk %>" required>
-    </div>
+  <main class="page-wrap">
+    <section class="page-heading">
+      <p class="page-kicker">Quản lý người dùng</p>
+      <h2>Sửa tài khoản</h2>
+      <p class="page-desc">Chỉnh sửa thông tin đăng nhập và vai trò người dùng.</p>
+    </section>
 
-    <div>
-      <label>Role:</label>
-      <select name="role">
-        <option value="user" <%= user.role === "user" ? "selected" : "" %>>user</option>
-        <option value="admin" <%= user.role === "admin" ? "selected" : "" %>>admin</option>
-      </select>
-    </div>
+    <section class="edit-card">
+      <form action="/admin/users/update/<%= user.id %>" method="POST">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="tk">Tài khoản</label>
+            <input id="tk" type="text" name="tk" value="<%= user.tk %>" required>
+          </div>
 
-    <button type="submit">Cập nhật</button>
-  </form>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" value="<%= user.email %>" required>
+          </div>
 
-  <br>
-  <a href="/admin/users">Quay lại</a>
+          <div class="form-group">
+            <label for="mk">Mật khẩu</label>
+            <input id="mk" type="text" name="mk" value="<%= user.mk %>" required>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Role</label>
+            <select id="role" name="role">
+              <option value="user" <%= user.role === "user" ? "selected" : "" %>>user</option>
+              <option value="admin" <%= user.role === "admin" ? "selected" : "" %>>admin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-primary" type="submit">Cập nhật</button>
+          <a class="btn-secondary" href="/admin/users">Hủy</a>
+        </div>
+      </form>
+    </section>
+  </main>
 </body>
 </html>

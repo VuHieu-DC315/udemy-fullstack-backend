@@ -47,6 +47,7 @@ const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
+
 db.sequelize
   .sync({ alter: true })
   .then(() => {
@@ -56,8 +57,22 @@ db.sequelize
     console.log("Failed to sync database: " + err.message);
   });
 
-app.get("/", (req, res) => {
-  renderView(res, "home.ejs");
+//app.get("/", (req, res) => {
+ // renderView(res, "home.ejs");
+//});
+
+app.get("/", async (req, res) => {
+  try {
+    renderView(res, "home", {
+      user: req.session.user || null,
+      announcements: [],
+      hasMoreAnnouncements: false,
+      tutorials: [],
+    });
+  } catch (error) {
+    console.log("Home render error:", error);
+    res.status(500).send("Lỗi render trang chủ");
+  }
 });
 
 app.get("/login", (req, res) => {
