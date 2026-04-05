@@ -53,9 +53,9 @@ img {
   min-height: 80px;
   padding: 10px 20px;
   display: grid;
-  grid-template-columns: 320px minmax(380px, 1fr) 320px;
+  grid-template-columns: 280px minmax(260px, 1fr) auto;
   align-items: center;
-  gap: 28px;
+  gap: 16px;
 }
 
 .shop-brand {
@@ -97,6 +97,8 @@ img {
 
 .shop-search {
   width: 100%;
+  max-width: 720px;
+  justify-self: stretch;
   height: 44px;
   background: #ffffff;
   border: 4px solid #ffffff;
@@ -104,6 +106,7 @@ img {
   display: flex;
   align-items: center;
   overflow: hidden;
+  min-width: 0;
 }
 
 .shop-search input {
@@ -144,12 +147,14 @@ img {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 20px;
+  gap: 12px;
+  flex-wrap: nowrap;
+  min-width: max-content;
 }
 
 .nav-cart-link {
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -159,7 +164,7 @@ img {
 }
 
 .nav-auth-btn {
-  min-width: 100px;
+  min-width: 92px;
   height: 44px;
   border: 2px solid #ffffff;
   border-radius: 14px;
@@ -167,10 +172,11 @@ img {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   white-space: nowrap;
   transition: 0.2s ease;
+  padding: 0 14px;
 }
 
 .nav-auth-btn:hover {

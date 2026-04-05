@@ -171,11 +171,13 @@ module.exports = {
       for (const item of cartItems) {
         await db.orders.create({
           tutorialId: item.tutorial.id,
+          userId: req.session.user.id,
           title: item.tutorial.title,
           quantity: item.quantity,
           email,
           phone,
-          price: item.tutorial.price, // Lưu giá tại thời điểm đặt hàng
+          price: item.tutorial.price,
+          status: "pending",
         });
       }
 

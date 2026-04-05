@@ -207,7 +207,7 @@ module.exports = {
         });
       }
 
-      const { tutorialId, title, quantity, email, phone } = req.body;
+      const { tutorialId, quantity, email, phone } = req.body;
 
       if (!email || !phone) {
         return res.status(400).json({
@@ -215,12 +215,27 @@ module.exports = {
         });
       }
 
+      const tutorial = await Tutorial.findByPk(tutorialId);
+
+      if (!tutorial) {
+        return res.status(404).json({
+          message: "Sản phẩm không tồn tại",
+        });
+      }
+
+      const parsedQuantity = parseInt(quantity, 10);
       const order = await Order.create({
-        tutorialId,
-        title,
-        quantity,
+        userId: req.session.user.id,
+        tutorialId: tutorial.id,
+        title: tutorial.title,
+        quantity:
+          Number.isInteger(parsedQuantity) && parsedQuantity > 0
+            ? parsedQuantity
+            : 1,
         email,
         phone,
+        price: tutorial.price || 0,
+        status: "pending",
       });
 
       return res.json({
@@ -261,14 +276,82 @@ module.exports = {
 
   getAllOrders: async (req, res) => {
     try {
-      const orders = await Order.findAll();
+      if (!req.session.user || req.session.user.role !== "admin") {
+        return res.status(403).send("Bạn không có quyền vào trang admin");
+      }
+
+      const orders = await Order.findAll({
+        order: [["id", "DESC"]],
+      });
 
       return res.render("order.ejs", {
-        orders: orders,
+        orders,
       });
     } catch (error) {
       console.log("getAllOrders error =", error);
       return res.status(500).send("Lỗi khi lấy danh sách orders");
+    }
+  },
+  updateOrderStatus: async (req, res) => {
+    try {
+      if (!req.session.user || req.session.user.role !== "admin") {
+        return res
+          .status(403)
+          .send("Bạn không có quyền cập nhật trạng thái đơn hàng");
+      }
+
+      const id = req.params.id;
+      const { status } = req.body;
+
+      const allowedStatuses = [
+        "pending",
+        "confirmed",
+        "shipping",
+        "completed",
+        "cancelled",
+      ];
+      if (!allowedStatuses.includes(status)) {
+        return res.status(400).send("Trạng thái không hợp lệ");
+      }
+
+      const order = await Order.findByPk(id);
+      if (!order) {
+        return res.status(404).send("Không tìm thấy đơn hàng");
+      }
+
+      order.status = status;
+      await order.save();
+
+      return res.redirect("/admin/orders");
+    } catch (error) {
+      console.log("updateOrderStatus error =", error);
+      return res.status(500).send("Lỗi cập nhật trạng thái đơn hàng");
+    }
+  },
+
+  getMyOrders: async (req, res) => {
+    try {
+      if (!req.session.user) {
+        return res.redirect(
+          "/login?error=" +
+            encodeURIComponent("Bạn cần đăng nhập để xem đơn hàng của mình"),
+        );
+      }
+
+      const orders = await Order.findAll({
+        where: {
+          userId: req.session.user.id,
+        },
+        order: [["id", "DESC"]],
+      });
+
+      return res.render("myOrders.ejs", {
+        orders,
+        user: req.session.user,
+      });
+    } catch (error) {
+      console.log("getMyOrders error =", error);
+      return res.status(500).send("Lỗi khi lấy đơn hàng của bạn");
     }
   },
 

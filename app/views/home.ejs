@@ -42,7 +42,9 @@
             </form>
 
             <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
-                <a href="/cart" style="text-decoration: none; color: white; font-weight: 600;">Giỏ hàng</a>
+                <% if (user) { %>
+    <a href="/my-orders" style="text-decoration: none; color: white; font-weight: 600;">Đơn hàng của tôi</a>
+<% } %>
                 <div class="wishlist-popover-wrap" id="wishlistPopoverWrap">
                     <button id="wishlistToggleBtn" class="wishlist-header-link" type="button">
                         Yêu thích <span class="wishlist-count-badge" data-wishlist-count>0</span>

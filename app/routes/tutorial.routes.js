@@ -7,10 +7,12 @@ const {
   getHomesalePage,
   getBuyPage,
   buyTutorial,
-  getAllOrders
+  getAllOrders,
+  getMyOrders,
+  updateOrderStatus,
 } = require("../controllers/tutorial.controller");
 
-module.exports = app => {
+module.exports = (app) => {
   const router = require("express").Router();
 
   // Admin product pages
@@ -31,4 +33,10 @@ module.exports = app => {
 
   // Admin orders page
   app.get("/admin/orders", getAllOrders);
+  // Admin orders page
+  app.get("/admin/orders", getAllOrders);
+  app.post("/admin/orders/:id/status", updateOrderStatus);
+
+  // User orders page
+  app.get("/my-orders", getMyOrders);
 };

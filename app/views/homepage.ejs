@@ -35,6 +35,9 @@
 
             <div class="shop-actions">
                 <a href="/cart" class="nav-cart-link">Giỏ hàng</a>
+                <% if (user) { %>
+    <a href="/my-orders" class="nav-cart-link">Đơn hàng của tôi</a>
+<% } %>
                 <div class="wishlist-popover-wrap" id="wishlistPopoverWrap">
                     <button type="button" id="wishlistToggleBtn" class="nav-cart-link wishlist-header-link">
                         Yêu thích <span class="wishlist-count-badge" data-wishlist-count>0</span>

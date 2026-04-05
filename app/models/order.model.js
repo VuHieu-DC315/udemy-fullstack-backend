@@ -4,6 +4,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
     },
+    userId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    },
     title: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -25,6 +29,11 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
       allowNull: false,
       defaultValue: 0,
+    },
+    status: {
+      type: Sequelize.STRING,
+      allowNull: false,
+      defaultValue: "pending",
     },
   });
 
