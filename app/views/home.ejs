@@ -41,34 +41,46 @@
                 <button type="submit">Tìm</button>
             </form>
 
-            <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
-                <% if (user) { %>
-    <a href="/my-orders" style="text-decoration: none; color: white; font-weight: 600;">Đơn hàng của tôi</a>
-<% } %>
-                <div class="wishlist-popover-wrap" id="wishlistPopoverWrap">
-                    <button id="wishlistToggleBtn" class="wishlist-header-link" type="button">
-                        Yêu thích <span class="wishlist-count-badge" data-wishlist-count>0</span>
-                    </button>
+            <div class="header-right">
+    <a href="/cart" class="header-nav-link">Giỏ hàng</a>
+    <a href="/my-orders" class="header-nav-link">Đơn hàng của tôi</a>
 
-                    <div id="wishlistPopup" class="wishlist-popup" aria-hidden="true">
-                        <div class="wishlist-popup-head">
-                            <strong>Sản phẩm yêu thích</strong>
-                        </div>
+    <div class="wishlist-popover-wrap" id="wishlistPopoverWrap">
+        <button id="wishlistToggleBtn" class="wishlist-header-link" type="button">
+            Yêu thích <span class="wishlist-count-badge" data-wishlist-count>0</span>
+        </button>
 
-                        <div class="wishlist-popup-list" data-wishlist-section data-wishlist-variant="compact" data-empty-text="Bạn chưa thêm sản phẩm nào vào mục yêu thích."></div>
-                    </div>
-                </div>
-
-                <% if (user) { %>
-                    <a href="/logout" class="login-btn">Đăng xuất</a>
-                <% } else { %>
-                    <a href="/login" class="login-btn">Đăng nhập</a>
-                <% } %>
+        <div id="wishlistPopup" class="wishlist-popup" aria-hidden="true">
+            <div class="wishlist-popup-head">
+                <strong>Sản phẩm yêu thích</strong>
             </div>
+
+            <div
+                class="wishlist-popup-list"
+                data-wishlist-section
+                data-wishlist-variant="compact"
+                data-empty-text="Bạn chưa thêm sản phẩm nào vào mục yêu thích.">
+            </div>
+        </div>
+    </div>
+
+    <% if (user) { %>
+        <a href="/logout" class="login-btn">Đăng xuất</a>
+    <% } else { %>
+        <a href="/login" class="login-btn">Đăng nhập</a>
+    <% } %>
+</div>
         </div>
     </header>
 
     <main>
+        <%
+            const heroProductsSource = (tutorials || []).filter(function (item) {
+                return item && item.published && Number(item.quantity || 0) > 0;
+            });
+            const heroProducts = (heroProductsSource.length ? heroProductsSource : (tutorials || [])).slice(0, 3);
+        %>
+
         <section class="hero">
             <div class="container hero-grid">
                 <div class="hero-content">
@@ -82,39 +94,47 @@
                 </div>
 
                 <div class="hero-card">
-                    <div class="hero-slider" id="heroSlider">
-                        <div class="hero-slide active">
-                            <img src="/image/1.jpg" alt="iPhone 15 Pro Max" />
-                            <div class="hero-product-info">
-                                <h3>iPhone 15 Pro Max</h3>
-                                <p>29.990.000đ</p>
+                    <div class="hero-slider" id="heroSlider" data-total-slides="<%= heroProducts.length %>">
+                        <% if (heroProducts.length > 0) { %>
+                            <% heroProducts.forEach(function(product, index) { %>
+                                <a
+                                    href="/products/<%= product.id %>"
+                                    class="hero-slide <%= index === 0 ? 'active' : '' %>"
+                                    data-slide-index="<%= index %>">
+                                    <img
+                                        src="/image/<%= product.id %>.jpg"
+                                        alt="<%= product.title %>"
+                                        onerror="this.src='/image/1.jpg'" />
+                                    <div class="hero-product-info">
+                                        <h3><%= product.title %></h3>
+                                        <p><%= Number(product.price || 0).toLocaleString('vi-VN') %>đ</p>
+                                    </div>
+                                </a>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="hero-slide active" data-slide-index="0">
+                                <img src="/image/1.jpg" alt="Sản phẩm nổi bật" onerror="this.src='/image/1.jpg'" />
+                                <div class="hero-product-info">
+                                    <h3>Sản phẩm nổi bật</h3>
+                                    <p>Khám phá nhiều thiết bị công nghệ mới tại PShop</p>
+                                </div>
                             </div>
-                        </div>
+                        <% } %>
 
-                        <div class="hero-slide">
-                            <img src="/image/2.jpg" alt="Samsung Galaxy S24" />
-                            <div class="hero-product-info">
-                                <h3>Samsung Galaxy S24</h3>
-                                <p>20.490.000đ</p>
+                        <% if (heroProducts.length > 1) { %>
+                            <button type="button" class="hero-slider-btn prev" id="heroPrev" aria-label="Ảnh trước">&#10094;</button>
+                            <button type="button" class="hero-slider-btn next" id="heroNext" aria-label="Ảnh tiếp theo">&#10095;</button>
+
+                            <div class="hero-slider-dots" id="heroDots">
+                                <% heroProducts.forEach(function(product, index) { %>
+                                    <button
+                                        type="button"
+                                        class="hero-dot <%= index === 0 ? 'active' : '' %>"
+                                        data-slide="<%= index %>"
+                                        aria-label="Chuyển tới ảnh <%= index + 1 %>"></button>
+                                <% }) %>
                             </div>
-                        </div>
-
-                        <div class="hero-slide">
-                            <img src="/image/4.jpg" alt="iPad Gen 10" />
-                            <div class="hero-product-info">
-                                <h3>iPad Gen 10</h3>
-                                <p>11.990.000đ</p>
-                            </div>
-                        </div>
-
-                        <button type="button" class="hero-slider-btn prev" id="heroPrev" aria-label="Ảnh trước">&#10094;</button>
-                        <button type="button" class="hero-slider-btn next" id="heroNext" aria-label="Ảnh tiếp theo">&#10095;</button>
-
-                        <div class="hero-slider-dots" id="heroDots">
-                            <button type="button" class="hero-dot active" data-slide="0" aria-label="Chuyển tới ảnh 1"></button>
-                            <button type="button" class="hero-dot" data-slide="1" aria-label="Chuyển tới ảnh 2"></button>
-                            <button type="button" class="hero-dot" data-slide="2" aria-label="Chuyển tới ảnh 3"></button>
-                        </div>
+                        <% } %>
                     </div>
                 </div>
             </div>
@@ -514,6 +534,160 @@
             if (document.readyState !== 'loading') {
                 refreshWishlist();
             }
+        })();
+    </script>
+
+
+    <script>
+        (function () {
+            function setupHeroSlider() {
+                const slider = document.getElementById('heroSlider');
+                if (!slider) return;
+
+                const slides = Array.from(slider.querySelectorAll('.hero-slide'));
+                const dots = Array.from(slider.querySelectorAll('.hero-dot'));
+                const prevBtn = document.getElementById('heroPrev');
+                const nextBtn = document.getElementById('heroNext');
+
+                if (slides.length <= 1) return;
+
+                let activeIndex = Math.max(slides.findIndex((slide) => slide.classList.contains('active')), 0);
+                let autoTimer = null;
+                let touchStartX = 0;
+                let touchEndX = 0;
+
+                function showSlide(nextIndex) {
+                    activeIndex = (nextIndex + slides.length) % slides.length;
+
+                    slides.forEach((slide, index) => {
+                        slide.classList.toggle('active', index === activeIndex);
+                        slide.setAttribute('aria-hidden', index === activeIndex ? 'false' : 'true');
+                        slide.tabIndex = index === activeIndex ? 0 : -1;
+                    });
+
+                    dots.forEach((dot, index) => {
+                        dot.classList.toggle('active', index === activeIndex);
+                        dot.setAttribute('aria-pressed', index === activeIndex ? 'true' : 'false');
+                    });
+                }
+
+                function stopAutoPlay() {
+                    if (autoTimer) {
+                        window.clearInterval(autoTimer);
+                        autoTimer = null;
+                    }
+                }
+
+                function startAutoPlay() {
+                    stopAutoPlay();
+                    autoTimer = window.setInterval(function () {
+                        showSlide(activeIndex + 1);
+                    }, 4000);
+                }
+
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function () {
+                        showSlide(activeIndex - 1);
+                        startAutoPlay();
+                    });
+                }
+
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function () {
+                        showSlide(activeIndex + 1);
+                        startAutoPlay();
+                    });
+                }
+
+                dots.forEach((dot) => {
+                    dot.addEventListener('click', function () {
+                        const nextIndex = Number(dot.dataset.slide || 0);
+                        showSlide(nextIndex);
+                        startAutoPlay();
+                    });
+                });
+
+                slider.addEventListener('mouseenter', stopAutoPlay);
+                slider.addEventListener('mouseleave', startAutoPlay);
+                slider.addEventListener('focusin', stopAutoPlay);
+                slider.addEventListener('focusout', startAutoPlay);
+
+                slider.addEventListener('touchstart', function (event) {
+                    touchStartX = event.changedTouches[0].clientX;
+                }, { passive: true });
+
+                slider.addEventListener('touchend', function (event) {
+                    touchEndX = event.changedTouches[0].clientX;
+                    const deltaX = touchEndX - touchStartX;
+
+                    if (Math.abs(deltaX) < 40) return;
+
+                    if (deltaX > 0) {
+                        showSlide(activeIndex - 1);
+                    } else {
+                        showSlide(activeIndex + 1);
+                    }
+                    startAutoPlay();
+                }, { passive: true });
+
+                showSlide(activeIndex);
+                startAutoPlay();
+            }
+
+            function setupAnnouncementModal() {
+                const modal = document.getElementById('announcementModal');
+                const titleNode = document.getElementById('announcementModalTitle');
+                const contentNode = document.getElementById('announcementModalContent');
+                const metaNode = document.getElementById('announcementModalMeta');
+                const closeBtn = document.getElementById('closeAnnouncementModal');
+                const openButtons = Array.from(document.querySelectorAll('.announcement-open'));
+
+                if (!modal || !titleNode || !contentNode || !metaNode || !openButtons.length) {
+                    return;
+                }
+
+                function openModal(button) {
+                    titleNode.textContent = button.dataset.title || 'Thông báo';
+                    contentNode.textContent = button.dataset.content || '';
+                    metaNode.textContent = button.dataset.meta || '';
+                    modal.classList.add('show');
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('modal-open');
+                }
+
+                function closeModal() {
+                    modal.classList.remove('show');
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('modal-open');
+                }
+
+                openButtons.forEach((button) => {
+                    button.addEventListener('click', function () {
+                        openModal(button);
+                    });
+                });
+
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', closeModal);
+                }
+
+                modal.addEventListener('click', function (event) {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape') {
+                        closeModal();
+                    }
+                });
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                setupHeroSlider();
+                setupAnnouncementModal();
+            });
         })();
     </script>
 </body>
