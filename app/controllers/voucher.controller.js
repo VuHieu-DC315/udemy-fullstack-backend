@@ -25,10 +25,22 @@ function normalizeVoucherBody(body) {
   const parsedQuantity = parseInt(body.quantity, 10);
   const parsedTutorialId = parseInt(body.tutorialId, 10);
 
+  // 🔥 FIX: normalize discountType
+  const rawType = String(body.discountType || "").trim().toLowerCase();
+  let discountType = "fixed";
+
+  if (
+    rawType === "percent" ||
+    rawType === "percentage" ||
+    rawType === "%"
+  ) {
+    discountType = "percent";
+  }
+
   return {
     code: String(body.code || "").trim().toUpperCase(),
     name: String(body.name || "").trim(),
-    discountType: body.discountType === "percent" ? "percent" : "fixed",
+    discountType, // <-- dùng biến đã normalize
     discountValue:
       Number.isInteger(parsedDiscountValue) && parsedDiscountValue >= 0
         ? parsedDiscountValue

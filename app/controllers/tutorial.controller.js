@@ -178,11 +178,11 @@ module.exports = {
 
       const tutorialWhere = q
         ? {
-            [Op.or]: [
-              { title: { [Op.like]: `%${q}%` } },
-              { description: { [Op.like]: `%${q}%` } },
-            ],
-          }
+          [Op.or]: [
+            { title: { [Op.like]: `%${q}%` } },
+            { description: { [Op.like]: `%${q}%` } },
+          ],
+        }
         : {};
 
       const tutorials = await Tutorial.findAll({
@@ -231,53 +231,53 @@ module.exports = {
   },
 
   getBuyPage: async (req, res) => {
-  try {
-    const id = parseInt(req.params.id, 10);
-    const tutorial = await Tutorial.findByPk(id);
+    try {
+      const id = parseInt(req.params.id, 10);
+      const tutorial = await Tutorial.findByPk(id);
 
-    if (!tutorial) {
-      return res.status(404).send(`Cannot find tutorial with id=${req.params.id}`);
-    }
+      if (!tutorial) {
+        return res.status(404).send(`Cannot find tutorial with id=${req.params.id}`);
+      }
 
-    let availableVouchers = [];
+      let availableVouchers = [];
 
-    if (req.session.user) {
-      const rawVouchers = await Voucher.findAll({
-        where: {
-          isActive: true,
-          [Op.or]: [
-            { appliesTo: "all" },
-            { appliesTo: "product", tutorialId: id },
-            { appliesTo: "tutorial", tutorialId: id },
-          ],
-        },
-        order: [["id", "DESC"]],
+      if (req.session.user) {
+        const rawVouchers = await Voucher.findAll({
+          where: {
+            isActive: true,
+            [Op.or]: [
+              { appliesTo: "all" },
+              { appliesTo: "product", tutorialId: id },
+              { appliesTo: "tutorial", tutorialId: id },
+            ],
+          },
+          order: [["id", "DESC"]],
+        });
+
+        const now = new Date();
+
+        availableVouchers = rawVouchers.filter((voucher) => {
+          const inTime =
+            (!voucher.startDate || new Date(voucher.startDate) <= now) &&
+            (!voucher.endDate || new Date(voucher.endDate) >= now);
+
+          const stillAvailable =
+            Number(voucher.usedCount || 0) < Number(voucher.quantity || 0);
+
+          return inTime && stillAvailable;
+        });
+      }
+
+      return res.render("buypage.ejs", {
+        tutorial,
+        user: req.session.user || null,
+        availableVouchers,
       });
-
-      const now = new Date();
-
-      availableVouchers = rawVouchers.filter((voucher) => {
-        const inTime =
-          (!voucher.startDate || new Date(voucher.startDate) <= now) &&
-          (!voucher.endDate || new Date(voucher.endDate) >= now);
-
-        const stillAvailable =
-          Number(voucher.usedCount || 0) < Number(voucher.quantity || 0);
-
-        return inTime && stillAvailable;
-      });
+    } catch (error) {
+      console.log("getBuyPage error =", error);
+      return res.status(500).send("Lỗi tải trang mua hàng");
     }
-
-    return res.render("buypage.ejs", {
-      tutorial,
-      user: req.session.user || null,
-      availableVouchers,
-    });
-  } catch (error) {
-    console.log("getBuyPage error =", error);
-    return res.status(500).send("Lỗi tải trang mua hàng");
-  }
-},
+  },
 
   buyTutorial: async (req, res) => {
     const transaction = await db.sequelize.transaction();
@@ -376,8 +376,10 @@ module.exports = {
           return res.status(400).json({ message: "Voucher không áp dụng cho sản phẩm này" });
         }
 
+        console.log("DEBUG BUY NOW VOUCHER =", voucher);
+
         voucherDiscount = calculateDiscount({
-          discountType: voucher.discountType,
+          discountType: voucher.discountType, // giữ nguyên
           discountValue: voucher.discountValue,
           maxDiscount: voucher.maxDiscount,
           baseAmount: originalAmount,
@@ -691,14 +693,14 @@ module.exports = {
       if (req.session.user) {
         const where = guestOrderIds.length > 0
           ? {
-              [Op.or]: [
-                { userId: req.session.user.id },
-                { id: guestOrderIds, userId: null },
-              ],
-            }
+            [Op.or]: [
+              { userId: req.session.user.id },
+              { id: guestOrderIds, userId: null },
+            ],
+          }
           : {
-              userId: req.session.user.id,
-            };
+            userId: req.session.user.id,
+          };
 
         orders = await Order.findAll({
           where,
