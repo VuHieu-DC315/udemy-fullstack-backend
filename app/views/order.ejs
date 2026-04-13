@@ -62,19 +62,17 @@
                     <table class="order-table">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>Product ID</th>
-                                <th>Tên sản phẩm</th>
-                                <th>Số lượng</th>
-                                <th>Email khách</th>
-                                <th>Số điện thoại</th>
-                                <th>Giá</th>
-                                <th>Gốc</th>
-                                <th>Voucher</th>
-                                <th>Giảm</th>
-                                <th>Thanh toán</th>
-                                <th>Trạng thái</th>
-                                <th>Cập nhật</th>
+                                <th style="width: 60px">ID</th>
+                                <th style="min-width: 140px">Tên sản phẩm</th>
+                                <th style="width: 70px">Số lượng</th>
+                                <th style="min-width: 120px">Email khách</th>
+                                <th style="min-width: 110px">Số điện thoại</th>
+                                <th style="width: 90px">Gốc</th>
+                                <th style="width: 90px">Voucher</th>
+                                <th style="width: 110px">Giảm</th>
+                                <th style="width: 110px">Thanh toán</th>
+                                <th style="width: 110px">Trạng thái</th>
+                                <th style="width: 110px">Cập nhật</th>
                             </tr>
                         </thead>
 
@@ -84,49 +82,29 @@
                                     <td>
                                         <span class="id-badge">#<%= item.id %></span>
                                     </td>
-
-                                    <td>
-                                        <span class="tutorial-id"><%= item.tutorialId %></span>
-                                    </td>
-
                                     <td class="title-cell">
                                         <%= item.title %>
                                     </td>
-
                                     <td>
                                         <span class="qty-badge"><%= item.quantity %></span>
                                     </td>
-
                                     <td>
                                         <a class="email-link" href="mailto:<%= item.email %>">
                                             <%= item.email %>
                                         </a>
                                     </td>
-
                                     <td>
                                         <a class="phone-link" href="tel:<%= item.phone %>">
                                             <%= item.phone %>
                                         </a>
                                     </td>
-
-                                    <td>
-                                        <span class="price-badge">
-                                            <%= item.price ? item.price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '-' %>
-                                        </span>
-                                    </td>
-
                                     <td><%= item.originalAmount ? item.originalAmount.toLocaleString('vi-VN') + 'đ' : '-' %></td>
-
                                     <td><%= item.voucherCode || '-' %></td>
-
                                     <td><%= item.voucherDiscount ? item.voucherDiscount.toLocaleString('vi-VN') + 'đ' : '-' %></td>
-
                                     <td><%= item.finalAmount ? item.finalAmount.toLocaleString('vi-VN') + 'đ' : '-' %></td>
-
                                     <td>
                                         <span><%= item.status || "pending" %></span>
                                     </td>
-
                                     <td>
                                         <form action="/admin/orders/<%= item.id %>/status" method="POST">
                                             <select name="status">
