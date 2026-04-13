@@ -510,41 +510,67 @@ module.exports = {
   },
 
   updateOrderStatus: async (req, res) => {
-    try {
-      if (!req.session.user || req.session.user.role !== "admin") {
-        return res
-          .status(403)
-          .send("Bạn không có quyền cập nhật trạng thái đơn hàng");
-      }
+  const transaction = await db.sequelize.transaction();
 
-      const id = req.params.id;
-      const { status } = req.body;
-
-      const allowedStatuses = [
-        "pending",
-        "confirmed",
-        "shipping",
-        "completed",
-        "cancelled",
-      ];
-      if (!allowedStatuses.includes(status)) {
-        return res.status(400).send("Trạng thái không hợp lệ");
-      }
-
-      const order = await Order.findByPk(id);
-      if (!order) {
-        return res.status(404).send("Không tìm thấy đơn hàng");
-      }
-
-      order.status = status;
-      await order.save();
-
-      return res.redirect("/admin/orders");
-    } catch (error) {
-      console.log("updateOrderStatus error =", error);
-      return res.status(500).send("Lỗi cập nhật trạng thái đơn hàng");
+  try {
+    if (!req.session.user || req.session.user.role !== "admin") {
+      await transaction.rollback();
+      return res
+        .status(403)
+        .send("Bạn không có quyền cập nhật trạng thái đơn hàng");
     }
-  },
+
+    const id = req.params.id;
+    const { status } = req.body;
+
+    const allowedStatuses = [
+      "pending",
+      "confirmed",
+      "shipping",
+      "completed",
+      "cancelled",
+    ];
+
+    if (!allowedStatuses.includes(status)) {
+      await transaction.rollback();
+      return res.status(400).send("Trạng thái không hợp lệ");
+    }
+
+    const order = await Order.findByPk(id, { transaction });
+    if (!order) {
+      await transaction.rollback();
+      return res.status(404).send("Không tìm thấy đơn hàng");
+    }
+
+    const oldStatus = order.status;
+
+    // Chỉ hoàn kho khi đơn đang KHÔNG phải cancelled mà bị đổi sang cancelled
+    if (oldStatus !== "cancelled" && status === "cancelled") {
+      const tutorial = await Tutorial.findByPk(order.tutorialId, { transaction });
+
+      if (tutorial) {
+        tutorial.quantity =
+          Number(tutorial.quantity || 0) + Number(order.quantity || 0);
+
+        if (tutorial.quantity > 0) {
+          tutorial.published = true;
+        }
+
+        await tutorial.save({ transaction });
+      }
+    }
+
+    order.status = status;
+    await order.save({ transaction });
+
+    await transaction.commit();
+    return res.redirect("/admin/orders");
+  } catch (error) {
+    await transaction.rollback();
+    console.log("updateOrderStatus error =", error);
+    return res.status(500).send("Lỗi cập nhật trạng thái đơn hàng");
+  }
+},
 
   getRevenuePage: async (req, res) => {
     try {
