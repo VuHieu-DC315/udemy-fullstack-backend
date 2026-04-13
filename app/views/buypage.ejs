@@ -280,18 +280,8 @@
     </main>
 
     <script>
-    (function () {
-        const pageDataEl = document.getElementById('wishlistPageData');
-        const IS_LOGGED_IN = !!pageDataEl && pageDataEl.dataset.isLoggedIn === '1';
-        const USER_ID = pageDataEl ? String(pageDataEl.dataset.userId || '').trim() : '';
-        const LOGIN_URL = '/login';
-        const STORAGE_KEY = IS_LOGGED_IN && USER_ID
-            ? 'pshop_wishlist_user_' + USER_ID
-            : '';
-
-        function goToLogin() {
-            window.location.href = LOGIN_URL;
-        }
+        (function () {
+            const STORAGE_KEY = 'pshop_wishlist_v1';
 
         function readItems() {
             if (!IS_LOGGED_IN || !STORAGE_KEY) return [];
@@ -327,13 +317,11 @@
             };
         }
 
-        function getItems() {
-            return readItems()
-                .map(normalizeItem)
-                .filter(function (item) {
+            function getItems() {
+                return readItems().map(normalizeItem).filter(function (item) {
                     return item.id;
                 });
-        }
+            }
 
         function hasItem(productId) {
             return getItems().some(function (item) {
@@ -345,18 +333,13 @@
             const nextItem = normalizeItem(item);
             if (!nextItem.id) return getItems();
 
-            const items = getItems();
-            const exists = items.some(function (entry) {
-                return entry.id === nextItem.id;
-            });
-
-            if (!exists) {
-                items.unshift(nextItem);
-                saveItems(items);
+                const items = getItems();
+                if (!items.some(function (entry) { return entry.id === nextItem.id; })) {
+                    items.unshift(nextItem);
+                    saveItems(items);
+                }
+                return items;
             }
-
-            return items;
-        }
 
         function removeItem(productId) {
             const nextItems = getItems().filter(function (item) {
@@ -366,23 +349,20 @@
             return nextItems;
         }
 
-        function toggleItem(item) {
-            const normalized = normalizeItem(item);
-            if (!normalized.id) return getItems();
+            function toggleItem(item) {
+                const normalized = normalizeItem(item);
+                if (!normalized.id) return getItems();
+                return hasItem(normalized.id) ? removeItem(normalized.id) : addItem(normalized);
+            }
 
-            return hasItem(normalized.id)
-                ? removeItem(normalized.id)
-                : addItem(normalized);
-        }
-
-        function escapeHtml(text) {
-            return String(text || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
+            function escapeHtml(text) {
+                return String(text || '')
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
 
         function formatPrice(price) {
             return Number(price || 0).toLocaleString('vi-VN') + 'đ';
@@ -428,13 +408,12 @@
             });
         }
 
-        function syncCounters() {
-            const total = IS_LOGGED_IN ? getItems().length : 0;
-
-            document.querySelectorAll('[data-wishlist-count]').forEach(function (node) {
-                node.textContent = String(total);
-            });
-        }
+            function syncCounters() {
+                const total = getItems().length;
+                document.querySelectorAll('[data-wishlist-count]').forEach(function (node) {
+                    node.textContent = String(total);
+                });
+            }
 
         function renderCompactItems(items) {
             return items.map(function (item) {
@@ -551,12 +530,7 @@
             }
 
             refreshWishlist();
-        });
-
-        if (document.readyState !== 'loading') {
-            refreshWishlist();
-        }
-    })();
+        })();
     </script>
 </body>
 
