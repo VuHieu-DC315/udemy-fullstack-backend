@@ -1,5 +1,5 @@
-const path = require('path');
-const db = require('../models');
+const path = require("path");
+const db = require("../models");
 
 const User = db.users;
 const Tutorial = db.tutorials;
@@ -11,7 +11,7 @@ const Sequelize = db.Sequelize;
 function renderView(res, viewName, data = {}) {
   return res.render(viewName, data, (err, html) => {
     if (err) {
-      const fallbackPath = path.join(__dirname, '../views', viewName);
+      const fallbackPath = path.join(__dirname, "../views", viewName);
       return res.render(fallbackPath, data);
     }
     return res.send(html);
@@ -23,15 +23,15 @@ function isValidEmail(email) {
 }
 
 function formatVN(date) {
-  if (!date) return '';
-  return new Intl.DateTimeFormat('vi-VN', {
-    timeZone: 'Asia/Ho_Chi_Minh',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
+  if (!date) return "";
+  return new Intl.DateTimeFormat("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
   }).format(new Date(date));
 }
 
@@ -40,7 +40,7 @@ async function getHomePage(req, res) {
     const now = new Date();
 
     const tutorials = await Tutorial.findAll({
-      order: [['id', 'DESC']],
+      order: [["id", "DESC"]],
       limit: 6,
     });
 
@@ -66,7 +66,7 @@ async function getHomePage(req, res) {
           },
         ],
       },
-      order: [['createdAt', 'DESC']],
+      order: [["createdAt", "DESC"]],
     });
 
     const uniqueAnnouncements = [];
@@ -85,22 +85,22 @@ async function getHomePage(req, res) {
       endDateVN: item.endDate ? formatVN(item.endDate) : null,
     }));
 
-    return renderView(res, 'home', {
+    return renderView(res, "home", {
       user: req.session.user || null,
       announcements: formattedAnnouncements.slice(0, 3),
       hasMoreAnnouncements: formattedAnnouncements.length > 3,
       tutorials,
     });
   } catch (error) {
-    console.log('Home render error:', error);
-    return res.status(500).send('Lỗi render trang chủ');
+    console.log("Home render error:", error);
+    return res.status(500).send("Lỗi render trang chủ");
   }
 }
 
 function getLoginPage(req, res) {
-  return renderView(res, 'login.ejs', {
-    error: req.query.error || '',
-    success: req.query.success || '',
+  return renderView(res, "login.ejs", {
+    error: req.query.error || "",
+    success: req.query.success || "",
   });
 }
 
@@ -113,33 +113,55 @@ async function login(req, res) {
     });
 
     if (!user) {
-      return renderView(res, 'login.ejs', {
-        error: 'Sai tài khoản hoặc mật khẩu',
-        success: '',
+      return renderView(res, "login.ejs", {
+        error: "Sai tài khoản hoặc mật khẩu",
+        success: "",
       });
     }
 
-    req.session.user = {
-      id: user.id,
-      tk: user.tk,
-      email: user.email,
-      role: user.role,
-    };
+    const tempCart = Array.isArray(req.session.tempCart)
+      ? [...req.session.tempCart]
+      : [];
 
-    if (user.role === 'admin') {
-      return res.redirect('/admin');
-    }
+    req.session.regenerate((err) => {
+      if (err) {
+        console.log("Session regenerate error:", err);
+        return res.status(500).send("Lỗi tạo phiên đăng nhập");
+      }
 
-    return res.redirect('/shop');
+      req.session.user = {
+        id: user.id,
+        tk: user.tk,
+        email: user.email,
+        role: user.role,
+      };
+
+      if (tempCart.length > 0) {
+        req.session.tempCart = tempCart;
+      }
+
+      req.session.save((saveErr) => {
+        if (saveErr) {
+          console.log("Session save after login error:", saveErr);
+          return res.status(500).send("Lỗi lưu phiên đăng nhập");
+        }
+
+        if (user.role === "admin") {
+          return res.redirect("/admin");
+        }
+
+        return res.redirect("/shop");
+      });
+    });
   } catch (error) {
-    console.log('Login error:', error);
-    return res.status(500).send('Lỗi server');
+    console.log("Login error:", error);
+    return res.status(500).send("Lỗi server");
   }
 }
 
 function getRegisterPage(req, res) {
-  return renderView(res, 'register.ejs', {
-    error: '',
+  return renderView(res, "register.ejs", {
+    error: "",
   });
 }
 
@@ -148,32 +170,32 @@ async function register(req, res) {
     const { tk, email, mk, confirmMk } = req.body;
 
     if (!tk || !email || !mk || !confirmMk) {
-      return renderView(res, 'register.ejs', {
-        error: 'Vui lòng nhập đầy đủ thông tin',
+      return renderView(res, "register.ejs", {
+        error: "Vui lòng nhập đầy đủ thông tin",
       });
     }
 
     if (tk.trim().length < 3) {
-      return renderView(res, 'register.ejs', {
-        error: 'Tài khoản phải có ít nhất 3 ký tự',
+      return renderView(res, "register.ejs", {
+        error: "Tài khoản phải có ít nhất 3 ký tự",
       });
     }
 
     if (!isValidEmail(email)) {
-      return renderView(res, 'register.ejs', {
-        error: 'Email không đúng định dạng',
+      return renderView(res, "register.ejs", {
+        error: "Email không đúng định dạng",
       });
     }
 
     if (mk.length < 6) {
-      return renderView(res, 'register.ejs', {
-        error: 'Mật khẩu phải có ít nhất 6 ký tự',
+      return renderView(res, "register.ejs", {
+        error: "Mật khẩu phải có ít nhất 6 ký tự",
       });
     }
 
     if (mk !== confirmMk) {
-      return renderView(res, 'register.ejs', {
-        error: 'Mật khẩu nhập lại không khớp',
+      return renderView(res, "register.ejs", {
+        error: "Mật khẩu nhập lại không khớp",
       });
     }
 
@@ -185,13 +207,13 @@ async function register(req, res) {
 
     if (existedUser) {
       if (existedUser.tk === tk.trim()) {
-        return renderView(res, 'register.ejs', {
-          error: 'Tài khoản đã tồn tại',
+        return renderView(res, "register.ejs", {
+          error: "Tài khoản đã tồn tại",
         });
       }
 
-      return renderView(res, 'register.ejs', {
-        error: 'Email đã được sử dụng',
+      return renderView(res, "register.ejs", {
+        error: "Email đã được sử dụng",
       });
     }
 
@@ -199,20 +221,23 @@ async function register(req, res) {
       tk: tk.trim(),
       email: email.trim(),
       mk,
-      role: 'user',
+      role: "user",
     });
 
-    return res.redirect('/login?success=' + encodeURIComponent('Đăng ký thành công, hãy đăng nhập'));
+    return res.redirect(
+      "/login?success=" +
+        encodeURIComponent("Đăng ký thành công, hãy đăng nhập"),
+    );
   } catch (error) {
-    console.log('Register error:', error);
-    return res.status(500).send('Lỗi server khi đăng ký');
+    console.log("Register error:", error);
+    return res.status(500).send("Lỗi server khi đăng ký");
   }
 }
 
 function getForgotPasswordPage(req, res) {
-  return renderView(res, 'forgotPassword.ejs', {
-    error: '',
-    success: '',
+  return renderView(res, "forgotPassword.ejs", {
+    error: "",
+    success: "",
   });
 }
 
@@ -221,9 +246,9 @@ async function forgotPassword(req, res) {
     const { tk, email } = req.body;
 
     if (!tk || !email) {
-      return renderView(res, 'forgotPassword.ejs', {
-        error: 'Vui lòng nhập đầy đủ tài khoản và email',
-        success: '',
+      return renderView(res, "forgotPassword.ejs", {
+        error: "Vui lòng nhập đầy đủ tài khoản và email",
+        success: "",
       });
     }
 
@@ -235,23 +260,23 @@ async function forgotPassword(req, res) {
     });
 
     if (!user) {
-      return renderView(res, 'forgotPassword.ejs', {
-        error: 'Tài khoản và email không khớp',
-        success: '',
+      return renderView(res, "forgotPassword.ejs", {
+        error: "Tài khoản và email không khớp",
+        success: "",
       });
     }
 
     const existedPending = await PasswordResetRequest.findOne({
       where: {
         userId: user.id,
-        status: 'pending',
+        status: "pending",
       },
     });
 
     if (existedPending) {
-      return renderView(res, 'forgotPassword.ejs', {
-        error: 'Bạn đã gửi yêu cầu trước đó, vui lòng chờ admin xử lý',
-        success: '',
+      return renderView(res, "forgotPassword.ejs", {
+        error: "Bạn đã gửi yêu cầu trước đó, vui lòng chờ admin xử lý",
+        success: "",
       });
     }
 
@@ -259,33 +284,36 @@ async function forgotPassword(req, res) {
       userId: user.id,
       tk: user.tk,
       email: user.email,
-      status: 'pending',
+      status: "pending",
     });
 
-    return renderView(res, 'forgotPassword.ejs', {
-      error: '',
-      success: 'Đã gửi yêu cầu mật khẩu mới. Vui lòng chờ admin xử lý.',
+    return renderView(res, "forgotPassword.ejs", {
+      error: "",
+      success: "Đã gửi yêu cầu mật khẩu mới. Vui lòng chờ admin xử lý.",
     });
   } catch (error) {
-    console.log('Forgot password error:', error);
-    return res.status(500).send('Lỗi xử lý quên mật khẩu');
+    console.log("Forgot password error:", error);
+    return res.status(500).send("Lỗi xử lý quên mật khẩu");
   }
 }
 
 function getAdminPage(req, res) {
-  return renderView(res, 'admin.ejs');
+  return renderView(res, "admin.ejs");
 }
 
 function logout(req, res) {
-  delete req.session.user;
+  if (!req.session) {
+    return res.redirect("/login");
+  }
 
-  req.session.save((err) => {
+  req.session.destroy((err) => {
     if (err) {
-      console.log('Logout session save error:', err);
-      return res.redirect('/login');
+      console.log("Logout session destroy error:", err);
+      return res.redirect("/login");
     }
 
-    return res.redirect('/login');
+    res.clearCookie("connect.sid");
+    return res.redirect("/login");
   });
 }
 
