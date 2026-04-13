@@ -197,7 +197,7 @@ select {
 }
 .order-table {
   width: 100%;
-  min-width: 1200px;
+  min-width: 900px;
   border-collapse: collapse;
 }
 .order-table thead th {
@@ -206,14 +206,14 @@ select {
   text-align: left;
   font-size: 15px;
   font-weight: 800;
-  padding: 20px 22px;
+  padding: 12px 10px;
   border-bottom: 1px solid #ececec;
   white-space: nowrap;
 }
 .order-table tbody td {
-  padding: 22px 22px;
+  padding: 12px 10px;
   border-bottom: 1px solid var(--line);
-  font-size: 16px;
+  font-size: 15px;
   vertical-align: middle;
 }
 .order-table tbody tr:last-child td {
@@ -238,10 +238,56 @@ select {
   font-weight: 500;
 }
 .title-cell {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #111827;
-  min-width: 220px;
+  min-width: 140px;
+}
+@media (max-width: 1100px) {
+  .order-table {
+    min-width: 700px;
+  }
+  .order-table th:nth-child(2),
+  .order-table td:nth-child(2), /* Product ID */
+  .order-table th:nth-child(7),
+  .order-table td:nth-child(7), /* Giá */
+  .order-table th:nth-child(10),
+  .order-table td:nth-child(10) /* Giảm */ {
+    display: none;
+  }
+
+  @media (max-width: 1100px) {
+    .order-table th:nth-child(5),
+    .order-table td:nth-child(5), /* Email */
+    .order-table th:nth-child(6),
+    .order-table td:nth-child(6), /* Phone */
+    .order-table th:nth-child(8),
+    .order-table td:nth-child(8), /* Gốc */
+    .order-table th:nth-child(9),
+    .order-table td:nth-child(9) /* Voucher */ {
+      display: none;
+    }
+  }
+}
+@media (max-width: 800px) {
+  .orders-panel {
+    padding: 10px;
+  }
+  .table-wrap {
+    border-radius: 10px;
+  }
+  .order-table {
+    min-width: 500px;
+    font-size: 13px;
+  }
+  .order-table th,
+  .order-table td {
+    padding: 7px 4px;
+  }
+  .title-cell {
+    min-width: 80px;
+    font-size: 13px;
+  }
 }
 .qty-badge {
   display: inline-flex;
