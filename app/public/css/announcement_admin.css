@@ -46,6 +46,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 18px;
 }
 
 .brand-logo {
@@ -82,6 +83,32 @@ textarea {
   font-weight: 500;
   color: rgba(255, 255, 255, 0.82);
   letter-spacing: 0;
+}
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.top-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.top-actions a:hover {
+  background: rgba(255, 255, 255, 0.22);
 }
 
 .page {
@@ -206,23 +233,6 @@ h3 {
   line-height: 1.6;
 }
 
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
-  padding: 14px 24px;
-  background: #f3f4f6;
-  color: #374151;
-  font-weight: 700;
-  border-radius: 14px;
-  transition: all 0.2s;
-}
-
-.back-link:hover {
-  background: #e5e7eb;
-}
-
 .empty-msg {
   color: var(--muted);
   font-style: italic;
@@ -246,4 +256,22 @@ h3 {
 
 .delete-btn:hover {
   background: #b91c1c;
+}
+
+@media (max-width: 768px) {
+  .topbar-container {
+    padding: 14px 20px;
+    align-items: flex-start;
+    gap: 14px;
+    flex-direction: column;
+  }
+
+  .top-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .top-actions a {
+    width: 100%;
+  }
 }
